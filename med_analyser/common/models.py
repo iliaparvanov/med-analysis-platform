@@ -34,7 +34,6 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractUser):
-    username = None
     email = models.EmailField(name='email',unique=True)
     is_doctor = models.BooleanField(default=False)
     is_hospital = models.BooleanField(default=False)
@@ -46,6 +45,9 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
+        return self.email
+        
+    def get_email(self):
         return self.email
 
 class Hospital(models.Model):
