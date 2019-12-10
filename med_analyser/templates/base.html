@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Medical Analysis{% endblock %}</title>
+    <link rel="icon" href="{% static 'img/favicon.png' %}">
+  </head>
+  <body>
+        <!-- add comething to handle messages here 
+            {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+        -->
+        
+        {% block content %}
+        {% endblock %}
+  </body>
+</html>
