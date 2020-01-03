@@ -11,7 +11,7 @@ class DoctorSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = ['email', 'password']
+        fields = ('email', 'first_name', 'last_name')
 
     @transaction.atomic
     def save(self):

@@ -6,6 +6,8 @@ class SignUpView(TemplateView):
     template_name = 'accounts/signup.html'
 
 
+class ProfileView(TemplateView):
+    template_name = "profile.html"
 '''
 def home(request):
     if request.user.is_authenticated:

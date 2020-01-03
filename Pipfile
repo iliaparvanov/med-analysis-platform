@@ -7,7 +7,7 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-django = "*"
+django = "~=2.2"
 psycopg2 = "*"
 
 [requires]

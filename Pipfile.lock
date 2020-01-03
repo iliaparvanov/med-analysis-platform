@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "56e93150a2b80dfdea2e1e74b817e0b94d8f76aff24032d5000825c0572c87fb"
+            "sha256": "f74fa7d4399d8f28044bc8c523ab237c737893597a457a57f0799726bb819526"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,11 +18,11 @@
     "default": {
         "django": {
             "hashes": [
-                "sha256:16040e1288c6c9f68c6da2fe75ebde83c0a158f6f5d54f4c5177b0c1478c5b86",
-                "sha256:89c2007ca4fa5b351a51a279eccff298520783b713bf28efb89dfb81c80ea49b"
+                "sha256:a4ad4f6f9c6a4b7af7e2deec8d0cbff28501852e5010d6c2dc695d3d1fae7ca0",
+                "sha256:fa98ec9cc9bf5d72a08ebf3654a9452e761fbb8566e3f80de199cbc15477e891"
             ],
             "index": "pypi",
-            "version": "==2.2.7"
+            "version": "==2.2.8"
         },
         "psycopg2": {
             "hashes": [
@@ -68,11 +68,11 @@
         },
         "colorama": {
             "hashes": [
-                "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d",
-                "sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"
+                "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff",
+                "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
             ],
             "markers": "sys_platform == 'win32'",
-            "version": "==0.4.1"
+            "version": "==0.4.3"
         },
         "isort": {
             "hashes": [
@@ -131,7 +131,6 @@
         },
         "wrapt": {
             "hashes": [
-                "sha256:5140596f1b17529d3dcc0bc5b75cec9ee6359614f325f902bf13bc08f1f91710",
                 "sha256:565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1"
             ],
             "version": "==1.11.2"
