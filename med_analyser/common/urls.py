@@ -11,5 +11,6 @@ urlpatterns = [
     path('accounts/signup/', generic.SignUpView.as_view(), name='signup'),
     path('accounts/signup/doctor/', doctors.DoctorSignUpView.as_view(), name='doctor_signup'),
     path('accounts/profile/', generic.ProfileView.as_view(), name='profile'),
+    path('', generic.HomePageView.as_view(), name='home')
     # path('accounts/signup/hospital/', hospitals.HospitalSignUpView.as_view(), name='hospital_signup'),
 ]

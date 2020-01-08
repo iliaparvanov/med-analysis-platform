@@ -1,10 +1,11 @@
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 
+class HomePageView(TemplateView):
+    template_name = 'home.html'
 
 class SignUpView(TemplateView):
     template_name = 'accounts/signup.html'
-
 
 class ProfileView(TemplateView):
     template_name = "profile.html"

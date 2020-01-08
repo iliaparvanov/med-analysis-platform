@@ -128,6 +128,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
 if DEBUG:
     STRIPE_PUBLISHABLE_KEY = 'pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0'
     STRIPE_SECRET_KEY = 'sk_test_NKc8tCg14LafsOIAhFI6GYrN00d9iWWIuZ'
