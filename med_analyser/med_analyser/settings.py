@@ -127,3 +127,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+if DEBUG:
+    STRIPE_PUBLISHABLE_KEY = 'pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0'
+    STRIPE_SECRET_KEY = 'sk_test_NKc8tCg14LafsOIAhFI6GYrN00d9iWWIuZ'
+else:
+    STRIPE_PUBLISHABLE_KEY = ''
+    STRIPE_SECRET_KEY = ''
