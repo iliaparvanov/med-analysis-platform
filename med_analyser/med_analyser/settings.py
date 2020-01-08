@@ -32,14 +32,14 @@ AUTH_USER_MODEL = 'common.CustomUser'
 # Application definition
 
 INSTALLED_APPS = [
-    'common',
-    'examinations',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'common',
+    'examinations',
 ]
 
 MIDDLEWARE = [
@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'med_analyser.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'med_analyserdb',
-        'USER': 'med_analyseruser',
-        'PASSWORD': 'med_analyserpassword',
-        'HOST': 'localhost',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
