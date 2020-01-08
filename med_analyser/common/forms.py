@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django import forms
 
@@ -10,8 +11,8 @@ class DoctorSignUpForm(UserCreationForm):
     last_name = forms.CharField(max_length=30)
 
     class Meta(UserCreationForm.Meta):
-        model = CustomUser
-        fields = ('email', 'first_name', 'last_name')
+        model = get_user_model()
+        fields = ('email',)
 
     @transaction.atomic
     def save(self):
@@ -24,5 +25,5 @@ class DoctorSignUpForm(UserCreationForm):
 
 class DoctorChangeForm(UserChangeForm):
     class Meta:
-        model = CustomUser
-        fields = '__all__'
+        model = get_user_model()
+        fields = ('email',)

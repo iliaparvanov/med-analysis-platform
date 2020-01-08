@@ -3,6 +3,12 @@ services:
     web:
         build: .
         command: python /web/manage.py runserver 0.0.0.0:8000
+        environment:
+            - SECRET_KEY=0j*h)c9mw05oy26#8*c5wl3aq@mmby0o0*@2+yju)$-_#pk2!)
+            - DEBUG=True
+            - STRIPE_TEST_PUBLISHABLE_KEY=pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0    
+            - STRIPE_TEST_SECRET_KEY=sk_test_NKc8tCg14LafsOIAhFI6GYrN00d9iWWIuZ
+
         volumes:
             - .:/web
         ports:

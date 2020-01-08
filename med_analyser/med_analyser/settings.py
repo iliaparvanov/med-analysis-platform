@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0j*h)c9mw05oy26#8*c5wl3aq@mmby0o0*@2+yju)$-_#pk2!)'
+SECRET_KEY = os.environ.get('0j*h)c9mw05oy26#8*c5wl3aq@mmby0o0*@2+yju)$-_#pk2!)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites', 
+    'allauth',
+    'allauth.account',
     'common',
     'examinations',
 ]
@@ -73,7 +76,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'med_analyser.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -132,8 +134,11 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 if DEBUG:
-    STRIPE_PUBLISHABLE_KEY = 'pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0'
-    STRIPE_SECRET_KEY = 'sk_test_NKc8tCg14LafsOIAhFI6GYrN00d9iWWIuZ'
+    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_TEST_PUBLISHABLE_KEY')
+    STRIPE_SECRET_KEY = os.environ.get('STRIPE_TEST_SECRET_KEY') 
+
 else:
     STRIPE_PUBLISHABLE_KEY = ''
     STRIPE_SECRET_KEY = ''
+
+SITE_ID = 1
