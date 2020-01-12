@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for examination in object_list %}
+        <div>
+            <h2><a href="">{{ examination.pat_name }}, {{ examination.created_on }}</a></h2>
+        </div>
+    {% endfor %}
+{% endblock content %}
