@@ -2,28 +2,25 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django import forms
+from allauth.account.forms import SignupForm
+
 
 from .models import CustomUser, Doctor, Hospital, CustomUser
 
 
-class DoctorSignUpForm(UserCreationForm):
+class DoctorSignUpForm(SignupForm):
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
 
-    class Meta(UserCreationForm.Meta):
-        model = get_user_model()
-        fields = ('email',)
+    def save(self, request):
+        user = super(DoctorSignUpForm, self).save(request)
 
-    @transaction.atomic
-    def save(self):
-        user = super().save(commit=False)
-        user.is_doctor = True
-        user.save()
-        doctor = Doctor.objects.create(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'))
-        # student.interests.add(*self.cleaned_data.get('interests'))
-        return user
+        doctor = Doctor(
+            user=user,
+            first_name=self.cleaned_data.get('first_name'),
+            last_name=self.cleaned_data.get('last_name')
+        )
+        doctor.save()
 
-class DoctorChangeForm(UserChangeForm):
-    class Meta:
-        model = get_user_model()
-        fields = ('email',)
+        return doctor.user
+

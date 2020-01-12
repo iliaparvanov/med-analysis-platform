@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+  <div class="">
+    <div class="">
+      <h2>Sign up as a {{ user_type }}</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="">Sign up</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
