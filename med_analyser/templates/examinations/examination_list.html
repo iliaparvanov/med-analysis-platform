@@ -1,9 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% for examination in object_list %}
-        <div>
-            <h2><a href="">{{ examination.pat_name }}, {{ examination.created_on }}</a></h2>
-        </div>
-    {% endfor %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Patient</th>
+                <th scope="col">Study conducted on</th>
+                <th scope="col">Study created on</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for examination in examinations %}
+                <tr>
+                    <td>{{ examination.pat_name }}</td>
+                    <td>Study date here</td>
+                    <td>{{ examination.created_on }}</td>
+                    <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-outline-primary">View</a></td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+    
 {% endblock content %}
