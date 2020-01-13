@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sites', 
     'allauth',
     'allauth.account',
+    'crispy_forms',
     'common',
     'examinations',
 ]
@@ -152,3 +153,4 @@ else:
     STRIPE_PUBLISHABLE_KEY = ''
     STRIPE_SECRET_KEY = ''
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
