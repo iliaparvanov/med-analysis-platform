@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Examination
 from common.models import Doctor
+from django.urls import reverse_lazy
 import datetime
 
 def get_doctor(request):
@@ -30,3 +31,8 @@ class ExaminationCreateView(LoginRequiredMixin, CreateView):
         form.instance.created_on = datetime.date.today()
 
         return super().form_valid(form)
+
+class ExaminationDeleteView(LoginRequiredMixin, DeleteView):
+    model = Examination
+    template_name = 'examinations/examination_delete.html'
+    success_url = reverse_lazy('examination_list')

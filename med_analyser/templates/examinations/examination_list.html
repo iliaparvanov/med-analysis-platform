@@ -16,7 +16,7 @@
                     <td>{{ examination.pat_name }}</td>
                     <td>Study date here</td>
                     <td>{{ examination.created_on }}</td>
-                    <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-outline-primary">View</a></td>
+                    <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-primary mr-1">View</a><a href="{% url 'examination_delete' examination.pk %}" role="button" class="btn btn-outline-danger">Delete</a></td>
                 </tr>
             {% endfor %}
 
