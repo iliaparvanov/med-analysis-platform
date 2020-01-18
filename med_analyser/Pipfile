@@ -12,6 +12,7 @@ psycopg2 = "*"
 stripe = "*"
 django-allauth = "==0.41"
 django-crispy-forms = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"
