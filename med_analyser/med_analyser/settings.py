@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'common',
     'examinations',
+    'subscriptions',
 ]
 
 MIDDLEWARE = [
