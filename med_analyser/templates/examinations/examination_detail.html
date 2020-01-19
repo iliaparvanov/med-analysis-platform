@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load cloudinary %}
 {% block content %}
     <h2>{{ examination.pat_name }}</h2>
     <p>Notes: {{ examination.notes }}</p>
+    {% cloudinary examination.image format="jpg" width=120 height=80 crop="fill" %}
     <p>Study created on: {{ examination.created_on }}</p>
 {% endblock content %}

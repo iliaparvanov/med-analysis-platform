@@ -8,6 +8,9 @@ services:
             - DEBUG=True
             - STRIPE_TEST_PUBLISHABLE_KEY=pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0    
             - STRIPE_TEST_SECRET_KEY=sk_test_NKc8tCg14LafsOIAhFI6GYrN00d9iWWIuZ
+            - CLOUDINARY_CLOUD_NAME=parvanov
+            - CLOUDINARY_API_KEY=394155324741353
+            - CLOUDINARY_API_SECRET=U-6NES8_waOuY1M6tfGEM4aw8HE
         volumes:
             - .:/web
         ports:

@@ -13,6 +13,7 @@ stripe = "*"
 django-allauth = "==0.41"
 django-crispy-forms = "*"
 pillow = "*"
+cloudinary = "*"
 
 [requires]
 python_version = "3.8"
