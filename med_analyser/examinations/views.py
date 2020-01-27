@@ -30,7 +30,6 @@ class ExaminationCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = get_doctor(self.request)
         form.instance.created_on = datetime.date.today()
-        print(form.instance.image)
 
         return super().form_valid(form)
 

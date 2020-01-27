@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<p>Subscriptions default view</p>
+    <p>You currently have a <b>{{ user.doctor.subscription.plan }}</b>. It lasts until <b>{{ user.doctor.subscription.get_next_billing_date }}</b></p>
 {% endblock %}
