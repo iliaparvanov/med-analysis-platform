@@ -1,6 +1,9 @@
 from django.db import models
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
+from django.conf import settings
+from datetime import datetime
+import stripe
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 
 class Plan(models.Model):

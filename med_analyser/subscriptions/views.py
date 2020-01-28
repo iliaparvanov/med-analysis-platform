@@ -7,3 +7,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 class SubscriptionManageView(LoginRequiredMixin, TemplateView):
     template_name = 'subscriptions/manage.html'
+
+class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
+    template_name = 'subscriptions/checkout.html'

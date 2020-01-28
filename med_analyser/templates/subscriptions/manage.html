@@ -1,5 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p>You currently have a <b>{{ user.doctor.subscription.plan }}</b>. It lasts until <b>{{ user.doctor.subscription.get_next_billing_date }}</b></p>
+    
+    {% if user.doctor.subscription.plan.plan_type != 'free' %}
+        <p>Your subscription will automatically be renewed on <b>{{ user.doctor.subscription.get_next_billing_date }}</b></p>
+    {% else %}
+
+    {% endif %}
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2"></div>
+            <!-- Free Tier -->
+                <div class="col-lg-4">
+                    <div class="card mb-5 mb-lg-0">
+                        <div class="card-body">
+                            <h5 class="card-title text-muted text-uppercase text-center">Free</h5>
+                            <h6 class="text-center">$0/month</h6>
+                            <hr>
+                            <ul class="fa-ul">
+                                <li><span class="fa-li"><i class="fas fa-check"></i></span>Up to 25 examinations</li>
+                                <li class="text-muted"><span class="fa-li"><i class="fas fa-times"></i></span>Choose Own Diagnosis</li>
+                            </ul>
+                            {% if user.doctor.subscription.plan.plan_type == 'free' %}
+                                <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
+                            {% else %}
+                                <a href="#" class="btn btn-block btn-primary text-uppercase">Downgrade</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Pro Tier -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-muted text-uppercase text-center">Pro</h5>
+                            <h6 class="text-center">$15/month</h6>
+                            <hr>
+                            <ul class="fa-ul">
+                                <li><span class="fa-li"><i class="fas fa-check"></i></span><strong>Unlimited Examinations</strong></li>
+                                <li><span class="fa-li"><i class="fas fa-check"></i></span>Choose Own Diagnosis</li>
+                            </ul>
+                            {% if user.doctor.subscription.plan.plan_type != 'free' %}
+                                <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
+                            {% else %}
+                                <a href="#" class="btn btn-block btn-primary text-uppercase">Upgrade</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2"></div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
