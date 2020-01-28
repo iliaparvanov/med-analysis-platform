@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, pre_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
@@ -22,10 +22,10 @@ class Doctor(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, related_name='doctors', null=True)
-    subscription = models.OneToOneField(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
+    subscription = models.OneToOneField(Subscription, on_delete=models.CASCADE, null=True, blank=True)
 
 @receiver(pre_save, sender=Doctor)
-def post_save_create_subscription(sender, instance, **kwargs):
+def pre_save_create_subscription(sender, instance, **kwargs):
     free_plan = Plan.objects.filter(plan_type='free').first()
     customer = stripe.Customer.create(email=instance.user.email)
     stripe_sub = stripe.Subscription.create(customer=customer.id, items=[{
@@ -33,5 +33,9 @@ def post_save_create_subscription(sender, instance, **kwargs):
     }])
     sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id, stripe_customer_id=customer.id, plan=free_plan)
     instance.subscription = sub
-    instance.save()
+
+@receiver(pre_delete, sender=Doctor)
+def pre_delete_delete_subscription(sender, instance, **kwargs):
+    # deleting a customer automatically cancels all active subscriptions
+    deleted_customer = stripe.Customer.delete(instance.subscription.stripe_customer_id)
 

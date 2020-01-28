@@ -1,7 +1,6 @@
 from django.db import models
-import stripe
-
-# Create your models here.
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 
 class Plan(models.Model):
