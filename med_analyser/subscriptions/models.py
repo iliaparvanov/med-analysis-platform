@@ -5,7 +5,6 @@ import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-
 class Plan(models.Model):
     
     PLAN_TYPES = [

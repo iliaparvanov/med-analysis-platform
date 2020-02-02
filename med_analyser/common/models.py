@@ -24,18 +24,26 @@ class Doctor(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, related_name='doctors', null=True)
     subscription = models.OneToOneField(Subscription, on_delete=models.CASCADE, null=True, blank=True)
 
+
+
 @receiver(pre_save, sender=Doctor)
 def pre_save_create_subscription(sender, instance, **kwargs):
     free_plan = Plan.objects.filter(plan_type='free').first()
-    customer = stripe.Customer.create(email=instance.user.email)
+    customer = stripe.Customer.create(email=instance.user.email, name=instance.first_name + " " + instance.last_name)
     stripe_sub = stripe.Subscription.create(customer=customer.id, items=[{
         "plan": free_plan.stripe_plan_id
     }])
     sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id, stripe_customer_id=customer.id, plan=free_plan)
     instance.subscription = sub
 
+    
+
 @receiver(pre_delete, sender=Doctor)
-def pre_delete_delete_subscription(sender, instance, **kwargs):
+def pre_delete_delete_subscription_user(sender, instance, **kwargs):
+    instance.user.delete()
     # deleting a customer automatically cancels all active subscriptions
-    deleted_customer = stripe.Customer.delete(instance.subscription.stripe_customer_id)
+    try:
+        deleted_customer = stripe.Customer.delete(instance.subscription.stripe_customer_id)
+    except: 
+        pass
 

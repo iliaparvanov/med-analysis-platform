@@ -23,4 +23,5 @@ class Examination(models.Model):
 
 @receiver(pre_delete, sender=Examination)
 def examination_delete(sender, instance, **kwargs):
-    cloudinary.uploader.destroy(instance.image.public_id)
+    if instance.image:
+        cloudinary.uploader.destroy(instance.image.public_id)

@@ -47,7 +47,7 @@
                             {% if user.doctor.subscription.plan.plan_type != 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
-                                <a href="#" class="btn btn-block btn-primary text-uppercase">Upgrade</a>
+                                <a href="{% url 'subscriptions:checkout' plan_type='pro' %}" class="btn btn-block btn-primary text-uppercase">Upgrade</a>
                             {% endif %}
                         </div>
                     </div>

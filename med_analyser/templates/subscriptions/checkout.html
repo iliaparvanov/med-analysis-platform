@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <form action="/charge" method="post" id="payment-form">
+    <form method="post" id="payment-form">
         {% csrf_token %}
         <div class="form-row">
             <label for="card-element">
@@ -16,23 +16,27 @@
             <div id="card-errors" role="alert"></div>
         </div>
 
-        <button id="submit">Pay</button>
+        <button id="submitBtn" data-secret="{{ client_secret }}" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}">Pay</button>
+        <input type="hidden" name="plan_type" value="{{ plan_type }}">
+        <input type="hidden" name="payment_intent" value="{{ payment_intent }}">
+        <input id="payment-method" type="hidden" name="payment_method_id" value="">
     </form>
     <script src="https://js.stripe.com/v3/"></script>
     <script type="text/javascript">
-        var stripe = Stripe('pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0');
-
+        const stripe = Stripe('pk_test_74YvyBqkakD4zxLzNWwsobOX007KjEpmW0');
         // Create an instance of Elements.
-        var elements = stripe.elements();
+        const elements = stripe.elements();
 
-        var style = {
+        const style = {
             base: {
                 color: "#32325d",
             }
         };
 
-        var card = elements.create('card', {style:style})
+        let card = elements.create('card', {style:style})
         card.mount('#card-element')
+
+        // error handling
         card.addEventListener('change', ({error}) => {
             const displayError = document.getElementById('card-errors');
             if (error) {
@@ -40,6 +44,36 @@
             } else {
                 displayError.textContent = '';
             }
+        });
+
+        let submitButton = document.getElementById('submitBtn');
+
+        let loadingIndicatorNode = document.createElement('div');
+        loadingIndicatorNode.innerHtml = '<p>Processing payment...</p>';
+
+        let clientName = submitButton.dataset.firstName + " " + submitButton.dataset.lastName
+        submitButton.addEventListener('click', function(ev) {
+            ev.preventDefault();
+
+            // prevent form from submitting again
+            submitButton.classList.add("disabled")
+            submitButton.after(loadingIndicatorNode);
+
+            stripe.createPaymentMethod({
+                type: 'card',
+                card: card,
+                billing_details: {
+                    name: clientName,
+                },
+            }).then((result) => {
+                // Handle result.error or result.paymentMethod
+                if (result.error) {
+                    console.log(result.error.message);
+                } else {
+                    document.getElementById('payment-method').value = result.paymentMethod.id
+                    document.forms['payment-form'].submit();
+                }
+            });
         });
     </script>
 {% endblock %}
