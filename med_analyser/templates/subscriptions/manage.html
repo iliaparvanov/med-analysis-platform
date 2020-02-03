@@ -26,7 +26,11 @@
                             {% if user.doctor.subscription.plan.plan_type == 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
-                                <a href="#" class="btn btn-block btn-primary text-uppercase">Downgrade</a>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                        <button class="btn btn-block btn-primary text-uppercase">Downgrade</button>
+                                    <input type="hidden" name="plan_type" value="free">
+                                </form>	
                             {% endif %}
                         </div>
                     </div>
@@ -47,7 +51,11 @@
                             {% if user.doctor.subscription.plan.plan_type != 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
-                                <a href="{% url 'subscriptions:checkout' plan_type='pro' %}" class="btn btn-block btn-primary text-uppercase">Upgrade</a>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                        <button class="btn btn-block btn-primary text-uppercase">Upgrade</button>
+                                    <input type="hidden" name="plan_type" value="pro">
+                                </form>	
                             {% endif %}
                         </div>
                     </div>
