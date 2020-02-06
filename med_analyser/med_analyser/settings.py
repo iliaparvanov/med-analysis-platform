@@ -162,3 +162,5 @@ cloudinary.config(
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+MODELS = os.path.join(BASE_DIR, 'examinations/models')

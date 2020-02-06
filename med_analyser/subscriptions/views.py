@@ -94,7 +94,7 @@ class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
             request.user.doctor.subscription.plan = desired_plan
             request.user.doctor.subscription.save()
             return redirect(reverse('subscriptions:checkout_success'))
-        else: 
+        else:
             return redirect(reverse('subscriptions:checkout'))
         
 

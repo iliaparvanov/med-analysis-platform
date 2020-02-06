@@ -7,6 +7,7 @@ from common.models import Doctor
 from django.urls import reverse_lazy
 import datetime
 
+from .apps import ExaminationsConfig
 
 def get_doctor(request):
     return Doctor.objects.filter(user=request.user).first()
