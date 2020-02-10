@@ -26,7 +26,7 @@ class Examination(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     pat_name = models.CharField(verbose_name='name of patient', max_length=100)
-    image = CloudinaryField('image', blank=True)
+    image = models.ImageField(upload_to='examination_images/', blank=True)
     notes = models.TextField()
     examination_type = models.CharField(max_length=15, choices=EXAMINATION_TYPES, default='not labeled')
     created_by = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='examinations')
@@ -38,10 +38,10 @@ class Examination(models.Model):
     def get_absolute_url(self):
         return reverse('examination_detail', args=[str(self.id)])
 
-@receiver(pre_delete, sender=Examination)
-def examination_delete(sender, instance, **kwargs):
-    if instance.image:
-        cloudinary.uploader.destroy(instance.image.public_id)
+# @receiver(pre_delete, sender=Examination)
+# def examination_delete(sender, instance, **kwargs):
+#     if instance.image:
+#         cloudinary.uploader.destroy(instance.image.public_id)
 
 # @receiver(post_save, sender=Examination)
 # def post_save_predict_image_type(sender, instance, **kwargs):
