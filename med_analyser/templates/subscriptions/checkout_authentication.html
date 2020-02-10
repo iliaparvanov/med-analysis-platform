@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+    <p>On this page you should see a modal allowing you to complete extra authentication required by your bank. If you fail the authentication, you will have to retry the payment.</p>
     <form method="post" id="authentication-form">
         {% csrf_token %}
         <div class="form-row">
@@ -24,8 +24,11 @@
         stripe.confirmCardPayment(paymentIntentSecret).then(function(result) {
             if (result.error) {
                 // Display error.message in your UI.
-                let errorMsg = document.createElement('div').innerHtml = '<p>PThere was an error with the authentication! Please try again.</p>';
-                let errorDiv = document.getElementById('errors').after(errorMsg)
+                // Modify modal
+                let modal = $('#messagesModal');
+                modal.find('.messages').empty();
+                modal.find('.messages').append('<li>Authentication has failed</li');
+                modal.modal('show');
             } else {
                 // The payment has succeeded. Display a success message.
                 document.forms['authentication-form'].submit();
