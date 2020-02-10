@@ -1,13 +1,14 @@
 from django.db import models
 from common.models import Doctor
 from django.urls import reverse
+from django.conf import settings
 import uuid
 from cloudinary.models import CloudinaryField
 import cloudinary
 from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
 
-from urllib.request import urlopen
+from pathlib import Path
 from fastai.vision.image import open_image 
 from .apps import ExaminationsConfig
 
@@ -43,10 +44,13 @@ class Examination(models.Model):
 #     if instance.image:
 #         cloudinary.uploader.destroy(instance.image.public_id)
 
-# @receiver(post_save, sender=Examination)
-# def post_save_predict_image_type(sender, instance, **kwargs):
-#     if instance.examination_type == 'not labeled':
-#         img = open_image(urlopen(instance.image.url))
-#         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
-#         instance.examination.type = 'chest'
-#         print(pred_class)
+@receiver(post_save, sender=Examination)
+def post_save_predict_image_type(sender, instance, **kwargs):
+    if instance.examination_type == 'not labeled':
+        # path = Path(settings.MEDIA_ROOT)
+        # print(path)
+        img = open_image(instance.image.file)
+        pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
+        instance.examination_type = str(pred_class)
+        instance.save()
+        print(pred_class)
