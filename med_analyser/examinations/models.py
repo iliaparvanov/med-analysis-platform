@@ -3,8 +3,6 @@ from common.models import Doctor
 from django.urls import reverse
 from django.conf import settings
 import uuid
-from cloudinary.models import CloudinaryField
-import cloudinary
 from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 
@@ -39,11 +37,6 @@ class Examination(models.Model):
     def get_absolute_url(self):
         return reverse('examination_detail', args=[str(self.id)])
 
-# @receiver(pre_delete, sender=Examination)
-# def examination_delete(sender, instance, **kwargs):
-#     if instance.image:
-#         cloudinary.uploader.destroy(instance.image.public_id)
-
 @receiver(post_delete, sender=Examination)
 def submission_delete(sender, instance, **kwargs):
     instance.image.delete(False)
@@ -51,8 +44,6 @@ def submission_delete(sender, instance, **kwargs):
 @receiver(post_save, sender=Examination)
 def post_save_predict_image_type(sender, instance, **kwargs):
     if instance.examination_type == 'not labeled':
-        # path = Path(settings.MEDIA_ROOT)
-        # print(path)
         img = open_image(instance.image.file)
         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
         instance.examination_type = str(pred_class)
