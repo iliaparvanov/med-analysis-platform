@@ -1,0 +1,10 @@
+name: django-fastai
+channels:
+  - pytorch
+  - fastai
+  - conda-forge
+  - defaults
+dependencies:
+  - 
+prefix: C:\Users\ilian\Anaconda3\envs\django-fastai
+

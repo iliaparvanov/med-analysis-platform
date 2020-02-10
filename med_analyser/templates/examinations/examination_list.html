@@ -2,26 +2,30 @@
 
 {% block content %}
     <a href="{% url 'examination_new' %}" role="button" class="btn btn-primary float-right m-1"><i class="fa fa-plus pr-1"></i>New</a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Patient</th>
-                <th scope="col">Study conducted on</th>
-                <th scope="col">Study created on</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for examination in examinations %}
+    {% if examinations %}
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>{{ examination.pat_name }}</td>
-                    <td>Study date here</td>
-                    <td>{{ examination.created_on }}</td>
-                    <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-primary mr-1">View</a><a href="{% url 'examination_delete' examination.pk %}" role="button" class="btn btn-outline-danger">Delete</a></td>
+                    <th scope="col">Patient</th>
+                    <th scope="col">Study conducted on</th>
+                    <th scope="col">Study created on</th>
+                    <th scope="col">Actions</th>
                 </tr>
-            {% endfor %}
+            </thead>
+            <tbody>
+                {% for examination in examinations %}
+                    <tr>
+                        <td>{{ examination.pat_name }}</td>
+                        <td>Study date here</td>
+                        <td>{{ examination.created_on }}</td>
+                        <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-primary mr-1">View</a><a href="{% url 'examination_delete' examination.pk %}" role="button" class="btn btn-outline-danger">Delete</a></td>
+                    </tr>
+                {% endfor %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    {% else %}
+        <p>You currently have no examinations!</p>
+    {% endif %}
     
 {% endblock content %}

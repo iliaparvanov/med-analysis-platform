@@ -16,6 +16,7 @@ def get_desired_plan(request):
 
 
 class SubscriptionManageView(LoginRequiredMixin, TemplateView):
+    login_url = 'account_login'
     template_name = 'subscriptions/manage.html'
 
     def post(self, request, *args, **kwargs):
@@ -25,6 +26,7 @@ class SubscriptionManageView(LoginRequiredMixin, TemplateView):
 
 
 class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
+    login_url = 'account_login'
     template_name = 'subscriptions/checkout.html'
 
     def post(self, request, *args, **kwargs):
@@ -81,6 +83,7 @@ class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
         return context
 
 class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
+    login_url = 'account_login'
     template_name = 'subscriptions/checkout_authentication.html'
 
     def post(self, request, *args, **kwargs):
@@ -101,6 +104,7 @@ class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
 
 
 class SubscriptionCheckoutSuccessView(LoginRequiredMixin, TemplateView):
+    login_url = 'account_login'
     template_name = 'subscriptions/checkout_success.html'
 
     def dispatch(self, *args, **kwargs):
