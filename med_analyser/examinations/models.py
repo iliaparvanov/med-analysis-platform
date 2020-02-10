@@ -5,7 +5,7 @@ from django.conf import settings
 import uuid
 from cloudinary.models import CloudinaryField
 import cloudinary
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 
 from pathlib import Path
@@ -43,6 +43,10 @@ class Examination(models.Model):
 # def examination_delete(sender, instance, **kwargs):
 #     if instance.image:
 #         cloudinary.uploader.destroy(instance.image.public_id)
+
+@receiver(post_delete, sender=Examination)
+def submission_delete(sender, instance, **kwargs):
+    instance.image.delete(False)
 
 @receiver(post_save, sender=Examination)
 def post_save_predict_image_type(sender, instance, **kwargs):
