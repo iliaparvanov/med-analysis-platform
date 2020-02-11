@@ -7,6 +7,9 @@ from common.models import Doctor
 from django.urls import reverse_lazy
 import datetime
 
+from .apps import ExaminationsConfig
+from fastai.vision.image import open_image 
+
 def get_doctor(request):
     return Doctor.objects.filter(user=request.user).first()
 
@@ -32,6 +35,9 @@ class ExaminationCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = get_doctor(self.request)
         form.instance.created_on = datetime.date.today()
+        img = open_image(form.instance.image.file)
+        pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
+        form.instance.examination_type = str(pred_class)
         
         return super().form_valid(form)
 

@@ -6,10 +6,6 @@ import uuid
 from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 
-from pathlib import Path
-from fastai.vision.image import open_image 
-from .apps import ExaminationsConfig
-
 class Examination(models.Model):
     EXAMINATION_TYPES = [
         ('chest', 'Chest X-Ray'),
@@ -40,12 +36,3 @@ class Examination(models.Model):
 @receiver(post_delete, sender=Examination)
 def submission_delete(sender, instance, **kwargs):
     instance.image.delete(False)
-
-@receiver(post_save, sender=Examination)
-def post_save_predict_image_type(sender, instance, **kwargs):
-    if instance.examination_type == 'not labeled':
-        img = open_image(instance.image.file)
-        pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
-        instance.examination_type = str(pred_class)
-        instance.save()
-        print(pred_class)
