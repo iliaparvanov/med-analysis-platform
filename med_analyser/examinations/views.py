@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Examination
+from .models import Examination, ImageType
 from .forms import ExaminationUploadForm
 from common.models import Doctor
 from django.urls import reverse_lazy
@@ -35,9 +35,14 @@ class ExaminationCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = get_doctor(self.request)
         form.instance.created_on = datetime.date.today()
+
+        #infer image type
         img = open_image(form.instance.image.file)
         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
-        form.instance.examination_type = str(pred_class)
+        form.instance.image_type = ImageType.objects.get(label=str(pred_class))
+
+        #infer findings
+
         
         return super().form_valid(form)
 

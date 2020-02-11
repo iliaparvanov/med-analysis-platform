@@ -13,4 +13,6 @@ class ExaminationsConfig(AppConfig):
     path_chest_xray = path/'chest_xray_model'
 
     learner_image_type = load_learner(path_image_type)
-    learner_chest_xray = load_learner(path_chest_xray)
+    learners_findings = {
+        "chest": load_learner(path_chest_xray)
+    }
