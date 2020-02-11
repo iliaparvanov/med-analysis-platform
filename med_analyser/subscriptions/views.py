@@ -4,9 +4,11 @@ from django.views import View
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import AbstractUser, Group
 from django.contrib import messages
 from django.conf import settings
 from subscriptions.models import Plan
+
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -59,6 +61,7 @@ class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
         if stripe_sub.status == "active" and stripe_sub.latest_invoice.payment_intent.status == "succeeded":
             # payment succeeds, provision goods
             request.user.doctor.subscription.plan = desired_plan
+            request.user.groups.add(Group.objects.get(name='pro_doctors_group'))
             request.user.doctor.subscription.save()
             messages.add_message(request, messages.SUCCESS, 'Payment successful!')
             return redirect(reverse('subscriptions:checkout_success'))
@@ -95,6 +98,7 @@ class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
         sub = stripe.Subscription.retrieve(self.request.user.doctor.subscription.stripe_subscription_id)
         if sub.status == 'active':
             request.user.doctor.subscription.plan = desired_plan
+            request.user.groups.add(Group.objects.get(name='pro_doctors_group'))
             request.user.doctor.subscription.save()
             return redirect(reverse('subscriptions:checkout_success'))
         else:

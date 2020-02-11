@@ -1,13 +1,13 @@
 from django.db import models
-from django.db.models.signals import pre_save, pre_delete
+from django.db.models.signals import pre_save, pre_delete, post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
 from subscriptions.models import Subscription, Plan
+
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 class CustomUser(AbstractUser):
     pass
@@ -24,8 +24,6 @@ class Doctor(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, related_name='doctors', null=True)
     subscription = models.OneToOneField(Subscription, on_delete=models.CASCADE, null=True, blank=True)
 
-
-
 @receiver(pre_save, sender=Doctor)
 def pre_save_create_subscription(sender, instance, **kwargs):
     free_plan = Plan.objects.filter(plan_type='free').first()
@@ -36,7 +34,13 @@ def pre_save_create_subscription(sender, instance, **kwargs):
     sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id, stripe_customer_id=customer.id, plan=free_plan)
     instance.subscription = sub
 
-    
+from common.utils import generate_doctor_groups_and_permissions
+
+@receiver(post_save, sender=Doctor)
+def post_save_create_and_add_groups(sender, instance, **kwargs):
+    generate_doctor_groups_and_permissions()
+    free_doctors_group = Group.objects.get(name='free_doctors_group')
+    instance.user.groups.add()
 
 @receiver(pre_delete, sender=Doctor)
 def pre_delete_delete_subscription_user(sender, instance, **kwargs):
