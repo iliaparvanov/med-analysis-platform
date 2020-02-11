@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Examination, ImageType
+from .models import Examination, ImageType, InferredFinding, Finding
 from .forms import ExaminationUploadForm
 from common.models import Doctor
 from django.urls import reverse_lazy
@@ -27,6 +27,12 @@ class ExaminationDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'examination'
     template_name = 'examinations/examination_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        findings = InferredFinding.objects.filter(examination=self.get_object())
+        context['inferred_findings'] = findings
+        return context
+
 class ExaminationCreateView(LoginRequiredMixin, CreateView):
     login_url = 'account_login'
     form_class = ExaminationUploadForm
@@ -39,11 +45,11 @@ class ExaminationCreateView(LoginRequiredMixin, CreateView):
         #infer image type
         img = open_image(form.instance.image.file)
         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
+        # print(f"pred_class: {pred_class}\npred_idx: {pred_idx}\noutputs: {outputs}\nclasses:{ExaminationsConfig.learner_image_type.data.classes}")
         form.instance.image_type = ImageType.objects.get(label=str(pred_class))
 
         #infer findings
 
-        
         return super().form_valid(form)
 
 class ExaminationDeleteView(LoginRequiredMixin, DeleteView):

@@ -6,6 +6,9 @@ import uuid
 from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 
+from .apps import ExaminationsConfig
+from fastai.vision.image import open_image 
+
 class ImageType(models.Model):
     label = models.CharField(max_length=15)
     human_readable = models.CharField(max_length=25)
@@ -40,6 +43,19 @@ class InferredFinding(models.Model):
     finding = models.ForeignKey(Finding, on_delete=models.CASCADE)
     examination = models.ForeignKey(Examination, on_delete=models.CASCADE)
     certainty = models.FloatField()
+
+@receiver(post_save, sender=Examination)
+def infer_findings(sender, instance,  **kwargs):
+    img = open_image(instance.image.file)
+    try:
+        learner = ExaminationsConfig.learners_findings[instance.image_type.label]
+        pred_class,pred_idx,outputs = learner.predict(img)
+        for c, output in zip(learner.data.classes, outputs):
+            inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label=c), certainty=output)
+            inferred_finding.save()
+        print(f"pred_class: {pred_class}\npred_idx: {pred_idx}\noutputs: {outputs}")
+    except KeyError:
+        pass
 
 @receiver(post_delete, sender=Examination)
 def submission_delete(sender, instance, **kwargs):
