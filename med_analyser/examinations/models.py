@@ -44,6 +44,12 @@ class InferredFinding(models.Model):
     examination = models.ForeignKey(Examination, on_delete=models.CASCADE)
     certainty = models.FloatField()
 
+class ConfirmedFinding(models.Model):
+    finding = models.ForeignKey(Finding, on_delete=models.CASCADE)
+    examination = models.ForeignKey(Examination, on_delete=models.CASCADE)
+    training_complete = models.BooleanField(verbose_name='the model was trained on this finding', default=False)
+    marked_for_training = models.BooleanField(verbose_name='the model will soon be trained on this finding', default=False)
+
 @receiver(post_save, sender=Examination)
 def infer_findings(sender, instance,  **kwargs):
     img = open_image(instance.image.file)
