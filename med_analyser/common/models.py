@@ -6,6 +6,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
 from subscriptions.models import Subscription, Plan
 
+
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -23,6 +24,13 @@ class Doctor(models.Model):
     last_name = models.CharField(max_length=30)
     hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, related_name='doctors', null=True)
     subscription = models.OneToOneField(Subscription, on_delete=models.CASCADE, null=True, blank=True)
+
+    @property
+    def can_create_more_examinations(self):
+        from examinations.models import Examination
+        if Examination.objects.filter(created_by=self).count() >= 3:
+            return False
+        return True
 
 @receiver(pre_save, sender=Doctor)
 def pre_save_create_subscription(sender, instance, **kwargs):

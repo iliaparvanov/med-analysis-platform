@@ -11,4 +11,5 @@ from django.conf import settings
 class DoctorSignUpView(SignupView):
     template_name = 'account/signup_doctor.html'
     form_class = DoctorSignUpForm
+    
 

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'crispy_forms',
+    'braces',
     'common',
     'examinations',
     'subscriptions',
@@ -121,6 +122,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SITE_ID = 1
 
+LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT = '/'
 ACCOUNT_USERNAME_REQUIRED = False

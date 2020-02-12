@@ -1,17 +1,19 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from braces.views import *
 from .models import Examination, ImageType, InferredFinding, Finding
 from .forms import ExaminationUploadForm
 from common.models import Doctor
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.http import HttpResponse, HttpResponseRedirect
 import datetime
 
 from .apps import ExaminationsConfig
 from fastai.vision.image import open_image 
 
-def get_doctor(request):
-    return Doctor.objects.filter(user=request.user).first()
+
 
 # Create your views here.
 class ExaminationListView(LoginRequiredMixin, ListView):
@@ -19,7 +21,7 @@ class ExaminationListView(LoginRequiredMixin, ListView):
     template_name = 'examinations/examination_list.html'
     context_object_name = 'examinations'
     def get_queryset(self):
-        return Examination.objects.filter(created_by=get_doctor(self.request)).order_by('created_on')
+        return Examination.objects.filter(created_by=self.request.user.doctor).order_by('created_on')
 
 class ExaminationDetailView(LoginRequiredMixin, DetailView):
     login_url = 'account_login'
@@ -33,22 +35,26 @@ class ExaminationDetailView(LoginRequiredMixin, DetailView):
         context['inferred_findings'] = findings
         return context
 
-class ExaminationCreateView(LoginRequiredMixin, CreateView):
-    login_url = 'account_login'
+class ExaminationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    def exceeded_max_examinations_redirect(self, request):
+            messages.add_message(request, messages.INFO, 'You\'ve exceeded the maximum number of examinations! Please delete an existing examination or get a higher tier subscription.')
+            return HttpResponseRedirect(reverse_lazy('subscriptions:manage'))
+
+    raise_exception = exceeded_max_examinations_redirect
+    redirect_unauthenticated_users = True
     form_class = ExaminationUploadForm
     template_name = 'examinations/examination_new.html'
 
+    def test_func(self, user):
+        return user.doctor.can_create_more_examinations
+
     def form_valid(self, form):
-        form.instance.created_by = get_doctor(self.request)
+        form.instance.created_by = self.request.user.doctor
         form.instance.created_on = datetime.date.today()
 
-        #infer image type
         img = open_image(form.instance.image.file)
         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
-        # print(f"pred_class: {pred_class}\npred_idx: {pred_idx}\noutputs: {outputs}\nclasses:{ExaminationsConfig.learner_image_type.data.classes}")
         form.instance.image_type = ImageType.objects.get(label=str(pred_class))
-
-        #infer findings
 
         return super().form_valid(form)
 
