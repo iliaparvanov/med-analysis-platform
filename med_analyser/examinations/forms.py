@@ -6,5 +6,9 @@ class ExaminationUploadForm(forms.ModelForm):
       model = Examination
       fields = ['pat_name', 'image', 'notes']
 
-class ExaminationMarkDefectNoFindingForm(forms.Form):
+class ExaminationMarkNoFindingForm(forms.Form):
   no_finding = forms.BooleanField(required=False)
+
+class ExaminationMarkFindingsForm(forms.Form):
+  no_finding = forms.BooleanField(required=False)
+

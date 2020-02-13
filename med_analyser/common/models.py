@@ -28,7 +28,7 @@ class Doctor(models.Model):
     @property
     def can_create_more_examinations(self):
         from examinations.models import Examination
-        if Examination.objects.filter(created_by=self).count() >= 3:
+        if Examination.objects.filter(created_by=self).count() >= 3 and not self.user.has_perm('common.can_exceed_max_examinations'):
             return False
         return True
 

@@ -59,7 +59,6 @@ def infer_findings(sender, instance,  **kwargs):
         for c, output in zip(learner.data.classes, outputs):
             inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label=c), certainty=output)
             inferred_finding.save()
-        print(f"pred_class: {pred_class}\npred_idx: {pred_idx}\noutputs: {outputs}")
     except KeyError:
         pass
 

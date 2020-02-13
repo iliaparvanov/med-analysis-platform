@@ -11,5 +11,10 @@ from django.conf import settings
 class DoctorSignUpView(SignupView):
     template_name = 'account/signup_doctor.html'
     form_class = DoctorSignUpForm
+
+    def form_valid(self, form):
+        form.instance.user.groups.add(Group.objects.get(name='free_doctors_group'))
+
+        return super().form_valid(form)
     
 

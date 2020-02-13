@@ -1,14 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, FormView
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from braces.views import *
-from .models import Examination, ImageType, InferredFinding, Finding
+from .models import *
 from .forms import *
 from common.models import Doctor
 from django.urls import reverse_lazy, reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 import datetime
 
 from .apps import ExaminationsConfig
@@ -60,10 +60,34 @@ class ExaminationDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'examinations/examination_delete.html'
     success_url = reverse_lazy('examination_list')
 
-class ExaminationMarkDefectNoFindingView(LoginRequiredMixin, SingleObjectMixin, FormView):
+class ExaminationMarkNoFindingView(LoginRequiredMixin, SingleObjectMixin, FormView):
     model = Examination
-    template_name = 'examinations/examination_mark_defect_no_finding.html'
-    form_class = ExaminationMarkDefectNoFindingForm
+    template_name = 'examinations/examination_mark_no_finding.html'
+    form_class = ExaminationMarkNoFindingForm
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        if form.cleaned_data['no_finding']:
+            # add to confirmed findings, display message, redirect back to examination
+            try:
+                cf = ConfirmedFinding(finding=Finding.objects.filter(is_no_finding=True, inferredfinding__in=InferredFinding.objects.filter(examination=self.get_object())).first(), examination=self.get_object())
+                cf.save()
+            except:
+                raise Http404('Error')
+            messages.add(self.request, messages.SUCCESS, 'Successfuly marked correct diagnosis!')
+            return redirect('examination_detail', pk=self.get_object().pk)
+        # go to next view
+        return redirect('examination_mark_findings', pk=self.get_object().pk)
+
+class ExaminationMarkFindingsView(LoginRequiredMixin, SingleObjectMixin, FormView):
+    model = Examination
+    template_name = 'examinations/examination_mark_findings.html'
+    form_class = ExaminationMarkFindingsForm
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -73,3 +97,4 @@ class ExaminationMarkDefectNoFindingView(LoginRequiredMixin, SingleObjectMixin, 
     def form_valid(self, form):
         print(form.cleaned_data)
         return HttpResponseRedirect('/')
+    
