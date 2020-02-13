@@ -4,11 +4,23 @@
     <p>Notes: {{ examination.notes }}</p>
     <p>{{ examination.image_type }}:</p>
     <img src="{{ examination.image.url }}">
+
+    <p>The findings our algorithm predicted:</p>
     {% for inferred_finding in inferred_findings %}
         <p>{{ inferred_finding.finding }}: {{ inferred_finding.certainty }}</p>
     {% endfor %}
-
-    <p>Do you see a problem with these findings? Please mark what you assume would be the correct findings</p><a class="btn btn-outline-primary" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark</a>
-    
+    <br>
+    <p>What you marked as the correct diagnosis:</p>
+    {% if confirmed_findings %}
+        <h4>
+            {% for confirmed_finding in confirmed_findings %}
+                <span class="badge badge-light">{{ confirmed_finding.finding.label }}</span>
+            {% endfor %}
+        </h4>
+        <br>
+        <a class="btn btn-outline-primary" href="{% url 'examination_mark_no_finding' examination.pk %}">Correct diagnosis</a>
+    {% else %}
+    <p>Do you see a problem with these findings? Please mark what you assume would be the correct findings</p><a class="btn btn-outline-primary" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark</a
+    {% endif %}
     <p>Study created on: {{ examination.created_on }}</p>
 {% endblock content %}

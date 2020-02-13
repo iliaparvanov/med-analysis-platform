@@ -28,8 +28,11 @@ class ExaminationDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        findings = InferredFinding.objects.filter(examination=self.get_object())
-        context['inferred_findings'] = findings
+        inferred_findings = InferredFinding.objects.filter(examination=self.get_object())
+        context['inferred_findings'] = inferred_findings
+        confirmed_findings = ConfirmedFinding.objects.filter(examination=self.get_object())
+        if confirmed_findings:
+            context['confirmed_findings'] = confirmed_findings
         return context
 
 class ExaminationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -60,6 +63,10 @@ class ExaminationDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'examinations/examination_delete.html'
     success_url = reverse_lazy('examination_list')
 
+def delete_cfs_for_examination(examination):
+    confirmed_findings = ConfirmedFinding.objects.filter(examination=examination)
+    if confirmed_findings: confirmed_findings.delete()
+
 class ExaminationMarkNoFindingView(LoginRequiredMixin, SingleObjectMixin, FormView):
     model = Examination
     template_name = 'examinations/examination_mark_no_finding.html'
@@ -71,16 +78,17 @@ class ExaminationMarkNoFindingView(LoginRequiredMixin, SingleObjectMixin, FormVi
         return self.render_to_response(context)
 
     def form_valid(self, form):
-        print(form.cleaned_data)
         if form.cleaned_data['no_finding']:
             # add to confirmed findings, display message, redirect back to examination
+            delete_cfs_for_examination(self.get_object())
             try:
                 cf = ConfirmedFinding(finding=Finding.objects.filter(is_no_finding=True, inferredfinding__in=InferredFinding.objects.filter(examination=self.get_object())).first(), examination=self.get_object())
                 cf.save()
             except:
                 raise Http404('Error')
-            messages.add(self.request, messages.SUCCESS, 'Successfuly marked correct diagnosis!')
+            messages.add_message(self.request, messages.SUCCESS, 'Successfully marked diagnosis. Now you can see both your marked findings and our predictions. We\'ll use this information to improve our algorithm, so thank you!')
             return redirect('examination_detail', pk=self.get_object().pk)
+
         # go to next view
         return redirect('examination_mark_findings', pk=self.get_object().pk)
 
@@ -94,7 +102,23 @@ class ExaminationMarkFindingsView(LoginRequiredMixin, SingleObjectMixin, FormVie
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
+    def get_context_data(self, **kwargs):
+        self.object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(ExaminationMarkFindingsView, self).get_form_kwargs()
+        findings_choices = tuple((f.label, f.label) for f in Finding.objects.filter(is_no_finding=False, inferredfinding__in=InferredFinding.objects.filter(examination=self.get_object())))
+        kwargs.update({'findings_choices': findings_choices})
+        return kwargs
+
     def form_valid(self, form):
         print(form.cleaned_data)
-        return HttpResponseRedirect('/')
+        delete_cfs_for_examination(self.get_object())
+        for finding in form.cleaned_data['findings']:
+            cf = ConfirmedFinding(finding=Finding.objects.get(label=finding), examination=self.get_object())
+            cf.save()
+        messages.add_message(self.request, messages.SUCCESS, "Successfully marked diagnosis. Now you can see both your marked findings and our predictions. We'll use this information to improve our algorithm, so thank you!")
+        return redirect('examination_detail', pk=self.get_object().pk)
     
