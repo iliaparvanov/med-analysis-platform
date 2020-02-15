@@ -8,7 +8,7 @@ import os
 
 class ExaminationsConfig(AppConfig):
     name = 'examinations'
-    path = Path(os.path.join(settings.MODELS))
+    path = Path(os.path.join(settings.ML_MODELS))
     path_image_type = path/'image_type_model'
     path_chest_xray = path/'chest_xray_model'
 
@@ -16,3 +16,7 @@ class ExaminationsConfig(AppConfig):
     learners_findings = {
         "chest": load_learner(path_chest_xray)
     }
+
+    def ready(self):
+        from .ml_models import trainer
+        trainer.start()

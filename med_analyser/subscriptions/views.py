@@ -103,8 +103,6 @@ class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
             return redirect(reverse('subscriptions:checkout_success'))
         else:
             return redirect(reverse('subscriptions:checkout'))
-        
-
 
 
 class SubscriptionCheckoutSuccessView(LoginRequiredMixin, TemplateView):

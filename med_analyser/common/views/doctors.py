@@ -14,7 +14,6 @@ class DoctorSignUpView(SignupView):
 
     def form_valid(self, form):
         form.instance.user.groups.add(Group.objects.get(name='free_doctors_group'))
-
         return super().form_valid(form)
     
 

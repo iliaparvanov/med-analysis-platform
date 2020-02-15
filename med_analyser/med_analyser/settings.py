@@ -43,9 +43,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'crispy_forms',
     'braces',
-    'common',
-    'examinations',
-    'subscriptions',
+    'common.apps.CommonConfig',
+    'examinations.apps.ExaminationsConfig',
+    'subscriptions.apps.SubscriptionsConfig',
 ]
 
 MIDDLEWARE = [
@@ -164,4 +164,4 @@ else:
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-MODELS = os.path.join(BASE_DIR, 'examinations/models')
+ML_MODELS = os.path.join(BASE_DIR, 'examinations/ml_models')
