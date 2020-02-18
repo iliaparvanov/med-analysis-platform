@@ -114,7 +114,6 @@ class ExaminationMarkFindingsView(LoginRequiredMixin, SingleObjectMixin, FormVie
         return kwargs
 
     def form_valid(self, form):
-        print(form.cleaned_data)
         delete_cfs_for_examination(self.get_object())
         for finding in form.cleaned_data['findings']:
             cf = ConfirmedFinding(finding=Finding.objects.get(label=finding), examination=self.get_object())

@@ -57,7 +57,6 @@ class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
             payment_behavior='allow_incomplete',
             expand=['latest_invoice.payment_intent'],
         )
-        print(stripe_sub)
         if stripe_sub.status == "active" and stripe_sub.latest_invoice.payment_intent.status == "succeeded":
             # payment succeeds, provision goods
             request.user.doctor.subscription.plan = desired_plan
