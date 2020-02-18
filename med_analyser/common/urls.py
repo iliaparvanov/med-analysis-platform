@@ -8,4 +8,5 @@ app_name = 'common'
 urlpatterns = [
     path('', generic.HomePageView.as_view(), name='home'),
     path('accounts/signup/doctors', doctors.DoctorSignUpView.as_view(), name='doctor_signup'),
+    path('accounts/doctor', doctors.DoctorDetailView.as_view(), name='doctor_detail')
 ]
