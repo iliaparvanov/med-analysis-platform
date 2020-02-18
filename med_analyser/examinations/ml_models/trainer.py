@@ -58,5 +58,5 @@ def train_chest_xray_model(learners_findings, confirmed_findings_model, image_ty
 
 def start(learners_findings, confirmed_findings_model, image_type_model, examinations_model):
     scheduler = BackgroundScheduler()
-    scheduler.add_job(train_chest_xray_model, 'interval', [learners_findings, confirmed_findings_model, image_type_model, examinations_model], minutes=3)
+    scheduler.add_job(train_chest_xray_model, 'interval', [learners_findings, confirmed_findings_model, image_type_model, examinations_model], minutes=30)
     scheduler.start()

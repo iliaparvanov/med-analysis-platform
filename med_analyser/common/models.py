@@ -17,6 +17,7 @@ class Hospital(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=50)
     description = models.TextField()
+    email_domain = models.CharField(max_length=50, unique=True)
 
 class Doctor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
@@ -34,6 +35,7 @@ class Doctor(models.Model):
 
 @receiver(pre_save, sender=Doctor)
 def pre_save_create_subscription(sender, instance, **kwargs):
+    # add free Stripe plan
     free_plan = Plan.objects.filter(plan_type='free').first()
     customer = stripe.Customer.create(email=instance.user.email, name=instance.first_name + " " + instance.last_name)
     stripe_sub = stripe.Subscription.create(customer=customer.id, items=[{
@@ -41,6 +43,11 @@ def pre_save_create_subscription(sender, instance, **kwargs):
     }])
     sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id, stripe_customer_id=customer.id, plan=free_plan)
     instance.subscription = sub
+
+    # add hospital to doctor based on email domain
+    hospital = Hospital.objects.filter(email_domain=instance.user.email.partition("@")[2])
+    if hospital:
+        instance.hospital = hospital.first()
 
 from common.utils import generate_doctor_groups_and_permissions
 

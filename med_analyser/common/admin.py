@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from .forms import DoctorSignUpForm
 from django.contrib.auth import get_user_model
-from .models import CustomUser, Doctor
+from .models import CustomUser, Doctor, Hospital
 
 admin.site.register(Doctor)
+admin.site.register(Hospital)
