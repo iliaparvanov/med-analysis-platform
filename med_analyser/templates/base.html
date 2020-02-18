@@ -23,17 +23,19 @@
                 <li class="nav-item px-2">
                   <a class="nav-link" href="{% url 'examination_list' %}">Examinations</a>
                 </li>
-                <li class="nav-item px-2">
-                  <a class="nav-link" href="{% url 'subscriptions:manage' %}">Subscriptions</a>
-                </li>
-                {% if user.doctor %}
-                <li class="nav-item px-2">
-                  <a class="nav-link" href="{% url 'common:doctor_detail' %}">My doctor profile</a>
-                </li>
+                {% if user.hospital %}
+                  <li class="nav-item px-2">
+                    <a class="nav-link" href="{% url 'subscriptions:manage' %}">Subscriptions</a>
+                  </li>
                 {% endif %}
-                <li class="nav-item px-2">
-                  <a class="btn btn-outline-primary" href="{% url 'account_logout' %}">Log out</a>
-                </li>
+                {% if user.doctor %}
+                  <li class="nav-item px-2">
+                    <a class="nav-link" href="{% url 'common:doctor_detail' %}">My doctor profile</a>
+                  </li>
+                {% endif %}
+                  <li class="nav-item px-2">
+                    <a class="btn btn-outline-primary" href="{% url 'account_logout' %}">Log out</a>
+                  </li>
               {% else %}
                 <li class="nav-item px-2">
                   <a class="nav-link" href="#">Pricing</a>

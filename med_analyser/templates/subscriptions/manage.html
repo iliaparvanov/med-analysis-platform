@@ -2,8 +2,8 @@
 
 {% block content %}
     
-    {% if user.doctor.subscription.plan.plan_type != 'free' %}
-        <p>Your subscription will automatically be renewed on <b>{{ user.doctor.subscription.get_next_billing_date }}</b></p>
+    {% if user.hospital.subscription.plan.plan_type != 'free' %}
+        <p>Your subscription will automatically be renewed on <b>{{ user.hospital.subscription.get_next_billing_date }}</b></p>
     {% else %}
 
     {% endif %}
@@ -23,7 +23,7 @@
                                 <li><span class="fa-li"><i class="fas fa-check"></i></span>Up to 25 examinations</li>
                                 <li class="text-muted"><span class="fa-li"><i class="fas fa-times"></i></span>Choose Own Diagnosis</li>
                             </ul>
-                            {% if user.doctor.subscription.plan.plan_type == 'free' %}
+                            {% if user.hospital.subscription.plan.plan_type == 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
                                 <form method="POST">
@@ -48,7 +48,7 @@
                                 <li><span class="fa-li"><i class="fas fa-check"></i></span><strong>Unlimited Examinations</strong></li>
                                 <li><span class="fa-li"><i class="fas fa-check"></i></span>Choose Own Diagnosis</li>
                             </ul>
-                            {% if user.doctor.subscription.plan.plan_type != 'free' %}
+                            {% if user.hospital.subscription.plan.plan_type != 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
                                 <form method="POST">

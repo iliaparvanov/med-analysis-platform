@@ -8,6 +8,8 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.contrib import messages
 from django.conf import settings
 from subscriptions.models import Plan
+from braces.views import *
+from common.models import Doctor
 
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -16,9 +18,28 @@ def get_desired_plan(request):
     plan_type = request.session.get('plan_type', 'nonexistant')
     return Plan.objects.filter(plan_type=plan_type).first()
 
+def get_customer_id(user):
+    return user.hospital.subscription.stripe_customer_id
 
-class SubscriptionManageView(LoginRequiredMixin, TemplateView):
-    login_url = 'account_login'
+def get_subscription(user):
+    return  stripe.Subscription.retrieve(user.hospital.subscription.stripe_subscription_id)
+
+def provision_goods(user, desired_plan):
+    user.hospital.subscription.plan = desired_plan
+    user.hospital.subscription.save()
+
+    user.groups.add(Group.objects.get(name='pro_doctors_group'))
+    user.groups.add(Group.objects.get(name='pro_hospitals_group'))
+
+    doctors_in_hospital = Doctor.objects.filter(hospital=user.hospital)
+    for doctor in doctors_in_hospital:
+        doctor.user.groups.add(Group.objects.get(name='pro_doctors_group'))
+
+
+class SubscriptionManageView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "common.is_hospital"
+    raise_exception = True
+    redirect_unauthenticated_users = True
     template_name = 'subscriptions/manage.html'
 
     def post(self, request, *args, **kwargs):
@@ -26,9 +47,10 @@ class SubscriptionManageView(LoginRequiredMixin, TemplateView):
         request.session['plan_type'] = plan_type
         return redirect(reverse('subscriptions:checkout'))
 
-
-class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
-    login_url = 'account_login'
+class SubscriptionCheckoutView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "common.is_hospital"
+    raise_exception = True
+    redirect_unauthenticated_users = True
     template_name = 'subscriptions/checkout.html'
 
     def post(self, request, *args, **kwargs):
@@ -37,14 +59,14 @@ class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
             return redirect(reverse('subscriptions:manage'))
 
         payment_method_id = request.POST['payment_method_id']
-        customer_id = self.request.user.doctor.subscription.stripe_customer_id
+        customer_id = get_customer_id(self.request.user)
         stripe.PaymentMethod.attach(payment_method_id, customer=customer_id)
         customer = stripe.Customer.modify(customer_id,
             invoice_settings={
                 'default_payment_method': payment_method_id,
             },
         )
-        sub = stripe.Subscription.retrieve(self.request.user.doctor.subscription.stripe_subscription_id)
+        sub = get_subscription(self.request.user)
         stripe_sub = stripe.Subscription.modify(
             sub.id,
             cancel_at_period_end=False,
@@ -59,9 +81,7 @@ class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
         )
         if stripe_sub.status == "active" and stripe_sub.latest_invoice.payment_intent.status == "succeeded":
             # payment succeeds, provision goods
-            request.user.doctor.subscription.plan = desired_plan
-            request.user.groups.add(Group.objects.get(name='pro_doctors_group'))
-            request.user.doctor.subscription.save()
+            provision_goods(self.request.user, desired_plan)
             messages.add_message(request, messages.SUCCESS, 'Payment successful!')
             return redirect(reverse('subscriptions:checkout_success'))
         elif stripe_sub.status == "past_due" and stripe_sub.latest_invoice.payment_intent.status == "requires_action":
@@ -73,19 +93,17 @@ class SubscriptionCheckoutView(LoginRequiredMixin, TemplateView):
             # card error usually, ie. payment has failed
             messages.add_message(request, messages.ERROR, 'Payment method invalid! Please fill in another payment method!')
             return render(request, self.template_name)
-        
-       
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['first_name'] = self.request.user.doctor.first_name
         context['last_name'] = self.request.user.doctor.last_name    
-
         return context
 
-class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
-    login_url = 'account_login'
+class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "common.is_hospital"
+    raise_exception = True
+    redirect_unauthenticated_users = True
     template_name = 'subscriptions/checkout_authentication.html'
 
     def post(self, request, *args, **kwargs):
@@ -94,18 +112,18 @@ class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, TemplateView):
         except:
             return redirect(reverse('subcriptions:manage'))
 
-        sub = stripe.Subscription.retrieve(self.request.user.doctor.subscription.stripe_subscription_id)
+        sub = get_subscription(self.request.user)
         if sub.status == 'active':
-            request.user.doctor.subscription.plan = desired_plan
-            request.user.groups.add(Group.objects.get(name='pro_doctors_group'))
-            request.user.doctor.subscription.save()
+            provision_goods(self.request.user, desired_plan)
             return redirect(reverse('subscriptions:checkout_success'))
         else:
             return redirect(reverse('subscriptions:checkout'))
 
 
-class SubscriptionCheckoutSuccessView(LoginRequiredMixin, TemplateView):
-    login_url = 'account_login'
+class SubscriptionCheckoutSuccessView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "common.is_hospital"
+    raise_exception = True
+    redirect_unauthenticated_users = True
     template_name = 'subscriptions/checkout_success.html'
 
     def dispatch(self, *args, **kwargs):

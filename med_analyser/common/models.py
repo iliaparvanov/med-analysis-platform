@@ -6,7 +6,6 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
 from subscriptions.models import Subscription, Plan
 
-
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -18,13 +17,13 @@ class Hospital(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     email_domain = models.CharField(max_length=50, unique=True)
+    subscription = models.OneToOneField(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
 
 class Doctor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, related_name='doctors', null=True)
-    subscription = models.OneToOneField(Subscription, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def can_create_more_examinations(self):
@@ -33,29 +32,37 @@ class Doctor(models.Model):
             return False
         return True
 
-@receiver(pre_save, sender=Doctor)
-def pre_save_create_subscription(sender, instance, **kwargs):
+@receiver(pre_save, sender=Hospital)
+def pre_save_hospital_create_subscription(sender, instance, **kwargs):
     # add free Stripe plan
     free_plan = Plan.objects.filter(plan_type='free').first()
-    customer = stripe.Customer.create(email=instance.user.email, name=instance.first_name + " " + instance.last_name)
+    customer = stripe.Customer.create(email=instance.user.email, name=instance.user.doctor.first_name + " " + instance.user.doctor.last_name)
     stripe_sub = stripe.Subscription.create(customer=customer.id, items=[{
         "plan": free_plan.stripe_plan_id
     }])
     sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id, stripe_customer_id=customer.id, plan=free_plan)
     instance.subscription = sub
 
-    # add hospital to doctor based on email domain
+@receiver(pre_save, sender=Doctor)
+def pre_save_doctor_add_to_hospital(sender, instance, **kwargs):
     hospital = Hospital.objects.filter(email_domain=instance.user.email.partition("@")[2])
     if hospital:
         instance.hospital = hospital.first()
 
-from common.utils import generate_doctor_groups_and_permissions
+from common.utils import generate_doctor_groups_and_permissions, generate_hospital_groups_and_permissions
 
 @receiver(post_save, sender=Doctor)
-def post_save_create_and_add_groups(sender, instance, **kwargs):
+def post_save_doctor_create_and_add_groups(sender, instance, **kwargs):
     generate_doctor_groups_and_permissions()
-    free_doctors_group = Group.objects.get(name='free_doctors_group')
-    instance.user.groups.add()
+    instance.user.groups.add(Group.objects.get(name='free_doctors_group'))
+    if instance.hospital.user.groups.filter(name='pro_hospitals_group').exists():
+        print('FLLLLLLLLLLAAAAAAAAAAAAAAG')
+        instance.user.groups.add(Group.objects.get(name='pro_doctors_group'))
+
+@receiver(post_save, sender=Hospital)
+def post_save_hospital_create_and_add_groups(sender, instance, **kwargs):
+    generate_hospital_groups_and_permissions()
+    instance.user.groups.add(Group.objects.get(name='free_hospitals_group'))
 
 @receiver(pre_delete, sender=CustomUser)
 def pre_delete_user_delete_doctor_hospital(sender, instance, **kwargs):

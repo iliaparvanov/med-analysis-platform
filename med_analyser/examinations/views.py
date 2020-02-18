@@ -38,7 +38,7 @@ class ExaminationDetailView(LoginRequiredMixin, DetailView):
 class ExaminationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def exceeded_max_examinations_redirect(self, request):
         messages.add_message(request, messages.INFO, 'You\'ve exceeded the maximum number of examinations! Please delete an existing examination or get a higher tier subscription.')
-        return HttpResponseRedirect(reverse_lazy('subscriptions:manage'))
+        return HttpResponseRedirect(reverse_lazy('examination_list'))
 
     raise_exception = exceeded_max_examinations_redirect
     redirect_unauthenticated_users = True
