@@ -57,12 +57,25 @@ def post_save_create_and_add_groups(sender, instance, **kwargs):
     free_doctors_group = Group.objects.get(name='free_doctors_group')
     instance.user.groups.add()
 
-@receiver(pre_delete, sender=Doctor)
-def pre_delete_delete_subscription_user(sender, instance, **kwargs):
-    instance.user.delete()
+@receiver(pre_delete, sender=CustomUser)
+def pre_delete_user_delete_doctor_hospital(sender, instance, **kwargs):
     # deleting a customer automatically cancels all active subscriptions
+    instance.doctor.delete()
+    if hasattr(instance, 'hospital'):
+        instance.hospital.delete()
+
+@receiver(pre_delete, sender=Doctor)
+def pre_delete_doctor_delete_subscription(sender, instance, **kwargs):
     try:
         deleted_customer = stripe.Customer.delete(instance.subscription.stripe_customer_id)
     except: 
         pass
+
+@receiver(pre_delete, sender=Hospital)
+def pre_delete_hospital_delete_subscription(sender, instance, **kwargs):
+    try:
+        deleted_customer = stripe.Customer.delete(instance.subscription.stripe_customer_id)
+    except: 
+        pass
+    
 

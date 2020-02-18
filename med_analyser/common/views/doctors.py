@@ -16,7 +16,7 @@ class DoctorSignUpView(SignupView):
 class DoctorDetailView(LoginRequiredMixin, DetailView):
     model = Doctor
     context_object_name = 'doctor'
-    template_name = 'account/doctor_detail.html'
+    template_name = 'account/detail_doctor.html'
 
     def get_object(self, queryset=None):
         obj = self.request.user.doctor

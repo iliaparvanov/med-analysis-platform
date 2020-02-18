@@ -3,5 +3,8 @@
     <h2>{{ doctor.first_name }} {{ doctor.last_name }}</h2>
     {% if doctor.hospital %}
         <p>Hospital: {{ doctor.hospital.name }}</p>
+    {% else %}
+        <p>You don't currently belong to a hospital.</p>
     {% endif %}
+    <a class="btn btn-outline-primary" href="{% url 'common:profile_delete' %}">Delete profile</a>
 {% endblock content %}
