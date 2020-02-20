@@ -16,9 +16,9 @@
     <div class="row">
         <div class="col">
         </div>
-        <div class="col-sm-10 col-md-10">
+        <div class="col-sm-12 col-md-10">
         <div class="border rounded bg-white p-5" >
-            <a href="{% url 'examination_new' %}" role="button" class="btn btn-primary float-right ml-3 m-1"><i class="fa fa-plus pr-1"></i>New</a>
+            <a href="{% url 'examination_new' %}" role="button" class="btn btn-primary float-right ml-3 mb-2 m-1"><i class="fa fa-plus pr-1"></i>New</a>
             {% if examinations %}
                 <table class="table">
                     <thead>
@@ -37,7 +37,8 @@
                                 <td>{{ examination.image_type }}</td>
                                 <td>{{ examination.conducted_on }}</td>
                                 <td>{{ examination.created_on }}</td>
-                                <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-primary mr-1">View</a><a href="{% url 'examination_delete' examination.pk %}" role="button" class="btn btn-outline-danger">Delete</a></td>
+                                <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-primary mr-1 btn-sm">View</a><a href="{% url 'examination_delete' examination.pk %}" role="button" class="btn btn-outline-danger btn-sm">Delete</a>
+                                <a href="{% url 'examination_new' %}" role="button" class="btn btn-outline-primary btn-sm"><i class="fa fa-pen"></i></a></td>
                             </tr>
                         {% endfor %}
 
