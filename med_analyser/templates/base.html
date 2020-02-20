@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block customcss %} {% endblock %}
     <link rel="icon" href="{% static 'img/favicon.png' %}">
   </head>
   <body>
@@ -30,7 +31,7 @@
                 {% endif %}
                 {% if user.doctor %}
                   <li class="nav-item px-2">
-                    <a class="nav-link" href="{% url 'common:doctor_detail' %}">My doctor profile</a>
+                    <a class="nav-link" href="{% url 'common:doctor_detail' %}">My profile</a>
                   </li>
                 {% endif %}
                   <li class="nav-item px-2">
@@ -75,7 +76,7 @@
             </div>
           </div>
         {% endif %}
-        <div class="container mt-4">
+        <div class="container mt-5 mb-5">
           {% block content %}
           {% endblock %}
         </div>

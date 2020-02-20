@@ -19,6 +19,20 @@ class Hospital(models.Model):
     email_domain = models.CharField(max_length=50, unique=True)
     subscription = models.OneToOneField(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
 
+    def move_to_free_plan(self):
+        self.subscription.move_to_free_plan()
+        self.user.groups.clear()
+        free_hospitals_group, created = Group.objects.get(name='free_hospitals_group')
+        self.user.groups.add(free_hospitals_group)
+        self.user.groups.add(Group.objects.get(name='free_doctors_group'))
+
+        doctors = Doctor.objects.filter(hospital=self)
+        if doctors:
+            for doctor in doctors:
+                doctor.user.groups.clear()
+                free_doctors_group, created = Group.objects.get(name='free_doctors_group')
+                doctor.user.groups.add(free_doctors_group)
+
 class Doctor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     first_name = models.CharField(max_length=30)
@@ -45,7 +59,8 @@ def pre_save_hospital_create_subscription(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=Doctor)
 def pre_save_doctor_add_to_hospital(sender, instance, **kwargs):
-    hospital = Hospital.objects.filter(email_domain=instance.user.email.partition("@")[2])
+    user_email_domain = instance.user.email.partition("@")[2]
+    hospital = Hospital.objects.filter(email_domain=user_email_domain)
     if hospital:
         instance.hospital = hospital.first()
 
@@ -56,7 +71,6 @@ def post_save_doctor_create_and_add_groups(sender, instance, **kwargs):
     generate_doctor_groups_and_permissions()
     instance.user.groups.add(Group.objects.get(name='free_doctors_group'))
     if instance.hospital.user.groups.filter(name='pro_hospitals_group').exists():
-        print('FLLLLLLLLLLAAAAAAAAAAAAAAG')
         instance.user.groups.add(Group.objects.get(name='pro_doctors_group'))
 
 @receiver(post_save, sender=Hospital)
@@ -66,7 +80,6 @@ def post_save_hospital_create_and_add_groups(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=CustomUser)
 def pre_delete_user_delete_doctor_hospital(sender, instance, **kwargs):
-    # deleting a customer automatically cancels all active subscriptions
     instance.doctor.delete()
     if hasattr(instance, 'hospital'):
         instance.hospital.delete()

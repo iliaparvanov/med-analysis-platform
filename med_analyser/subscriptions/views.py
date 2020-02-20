@@ -10,6 +10,9 @@ from django.conf import settings
 from subscriptions.models import Plan
 from braces.views import *
 from common.models import Doctor
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
+
 
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -26,6 +29,8 @@ def get_subscription(user):
 
 def provision_goods(user, desired_plan):
     user.hospital.subscription.plan = desired_plan
+    user.hospital.subscription.downgrade_at_period_end = False
+    user.hospital.subscription.current_period_end = date.today() + relativedelta(months=+1)
     user.hospital.subscription.save()
 
     user.groups.add(Group.objects.get(name='pro_doctors_group'))
@@ -34,7 +39,6 @@ def provision_goods(user, desired_plan):
     doctors_in_hospital = Doctor.objects.filter(hospital=user.hospital)
     for doctor in doctors_in_hospital:
         doctor.user.groups.add(Group.objects.get(name='pro_doctors_group'))
-
 
 class SubscriptionManageView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     permission_required = "common.is_hospital"
@@ -55,8 +59,7 @@ class SubscriptionCheckoutView(LoginRequiredMixin, PermissionRequiredMixin, Temp
 
     def post(self, request, *args, **kwargs):
         desired_plan = get_desired_plan(self.request)
-        if desired_plan is None:
-            return redirect(reverse('subscriptions:manage'))
+        if desired_plan is None: return redirect(reverse('subscriptions:manage'))
 
         payment_method_id = request.POST['payment_method_id']
         customer_id = get_customer_id(self.request.user)
@@ -79,19 +82,21 @@ class SubscriptionCheckoutView(LoginRequiredMixin, PermissionRequiredMixin, Temp
             payment_behavior='allow_incomplete',
             expand=['latest_invoice.payment_intent'],
         )
-        if stripe_sub.status == "active" and stripe_sub.latest_invoice.payment_intent.status == "succeeded":
+        status = stripe_sub.status
+        if status == "active" and stripe_sub.latest_invoice.payment_intent.status == "succeeded":
             # payment succeeds, provision goods
             provision_goods(self.request.user, desired_plan)
             messages.add_message(request, messages.SUCCESS, 'Payment successful!')
             return redirect(reverse('subscriptions:checkout_success'))
-        elif stripe_sub.status == "past_due" and stripe_sub.latest_invoice.payment_intent.status == "requires_action":
+        elif status == "past_due" and stripe_sub.latest_invoice.payment_intent.status == "requires_action":
             # requires further action, ie authentication
             messages.add_message(request, messages.ERROR, 'This payment method requires extra authentication.')
             request.session['client_secret'] = stripe_sub.latest_invoice.payment_intent.client_secret
             return redirect(reverse('subscriptions:checkout_authentication'))
         else:
             # card error usually, ie. payment has failed
-            messages.add_message(request, messages.ERROR, 'Payment method invalid! Please fill in another payment method!')
+            messages.add_message(request, messages.ERROR,
+            'Payment method invalid! Please fill in another payment method!')
             return render(request, self.template_name)
 
     def get_context_data(self, **kwargs):
@@ -138,3 +143,27 @@ class SubscriptionCheckoutSuccessView(LoginRequiredMixin, PermissionRequiredMixi
 
         return super().dispatch(*args, **kwargs)
 
+class SubscriptionCancelView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "common.is_hospital"
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+    def post(self, request, *args, **kwargs):
+        if self.request.user.hospital.subscription.downgrade_at_period_end:
+            messages.add_message(self.request, messages.INFO, 'Your subscription has already been canceled. You will not be charged at the end of your current billing period.')
+            return redirect('common:home')
+
+        sub = get_subscription(self.request.user)
+        stripe.Subscription.modify(
+                sub.id,
+                cancel_at_period_end=False,
+                items=[{
+                    'id': sub['items']['data'][0].id,
+                    'plan': Plan.objects.filter(plan_type='free').first().stripe_plan_id,
+            }]
+        )
+
+        self.request.user.hospital.subscription.downgrade_at_period_end = True
+        self.request.user.hospital.subscription.save()
+        messages.add_message(self.request, messages.INFO, 'Your subscription has been canceled. You will not be charged at the end of your current billing period.')
+        return redirect('common:home')

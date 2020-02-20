@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, date
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -22,12 +22,25 @@ class Subscription(models.Model):
     stripe_subscription_id = models.CharField(max_length=50, null=True)
     stripe_customer_id = models.CharField(max_length=50, null=True)
     plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True)
+    current_period_end = models.DateField(default=date(2040, 1, 1))
+    downgrade_at_period_end = models.BooleanField(default=False) 
 
     def is_active(self):
         Subscription = stripe.Subscription.retrieve(self.stripe.subscription_id)
         return datetime.fromtimestamp(subscription.active)
 
+    def move_to_free_plan(self):
+        self.plan = Plan.objects.filter(plan_type='free').first()
+        self.downgrade_at_period_end = False
+        self.current_period_end = date(2040, 1, 1)
+        self.save()
+
     @property
     def get_next_billing_date(self):
         subscription = stripe.Subscription.retrieve(self.stripe_subscription_id)
         return datetime.fromtimestamp(subscription.current_period_end)
+
+    @property
+    def get_status(self):
+        subscription = stripe.Subscription.retrieve(self.stripe_subscription_id)
+        return subscription.status

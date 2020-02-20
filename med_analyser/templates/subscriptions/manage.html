@@ -2,10 +2,10 @@
 
 {% block content %}
     
-    {% if user.hospital.subscription.plan.plan_type != 'free' %}
+    {% if user.hospital.subscription.plan.plan_type != 'free' and not user.hospital.subscription.downgrade_at_period_end %}
         <p>Your subscription will automatically be renewed on <b>{{ user.hospital.subscription.get_next_billing_date }}</b></p>
-    {% else %}
-
+    {% elif user.hospital.subscription.downgrade_at_period_end %}
+        <p>Your subscription has been canceled and you will not be billed again. You will be able to upgrade again after {{ user.hospital.subscription.current_period_end }}</p>
     {% endif %}
 
     <section class="py-5">
@@ -21,15 +21,15 @@
                             <hr>
                             <ul class="fa-ul">
                                 <li><span class="fa-li"><i class="fas fa-check"></i></span>Up to 25 examinations</li>
-                                <li class="text-muted"><span class="fa-li"><i class="fas fa-times"></i></span>Choose Own Diagnosis</li>
                             </ul>
-                            {% if user.hospital.subscription.plan.plan_type == 'free' %}
+                            {% if user.hospital.subscription.downgrade_at_period_end %}
+                                <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Your subscription will be downgraded</a>
+                            {% elif user.hospital.subscription.plan.plan_type == 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
-                                <form method="POST">
+                                <form action={% url 'subscriptions:cancel' %} method="POST">
                                     {% csrf_token %}
-                                        <button class="btn btn-block btn-primary text-uppercase">Downgrade</button>
-                                    <input type="hidden" name="plan_type" value="free">
+                                    <button class="btn btn-block btn-primary text-uppercase">Downgrade/Cancel</button>
                                 </form>	
                             {% endif %}
                         </div>
@@ -46,9 +46,10 @@
                             <hr>
                             <ul class="fa-ul">
                                 <li><span class="fa-li"><i class="fas fa-check"></i></span><strong>Unlimited Examinations</strong></li>
-                                <li><span class="fa-li"><i class="fas fa-check"></i></span>Choose Own Diagnosis</li>
                             </ul>
-                            {% if user.hospital.subscription.plan.plan_type != 'free' %}
+                            {% if user.hospital.subscription.downgrade_at_period_end %}
+                                <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">upgrade after end of billing period</a>
+                            {% elif user.hospital.subscription.plan.plan_type != 'free' %}
                                 <a href="#" class="btn btn-block btn-secondary text-uppercase disabled">Current subscription</a>
                             {% else %}
                                 <form method="POST">

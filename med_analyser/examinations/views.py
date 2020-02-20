@@ -37,7 +37,9 @@ class ExaminationDetailView(LoginRequiredMixin, DetailView):
 
 class ExaminationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def exceeded_max_examinations_redirect(self, request):
-        messages.add_message(request, messages.INFO, 'You\'ve exceeded the maximum number of examinations! Please delete an existing examination or get a higher tier subscription.')
+        messages.add_message(request, messages.INFO,
+        '''You've exceeded the maximum number of examinations!
+        Please delete an existing examination or get a higher tier subscription.''')
         return HttpResponseRedirect(reverse_lazy('examination_list'))
 
     raise_exception = exceeded_max_examinations_redirect
@@ -55,7 +57,7 @@ class ExaminationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView)
         img = open_image(form.instance.image.file)
         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
         form.instance.image_type = ImageType.objects.get(label=str(pred_class))
-
+        
         return super().form_valid(form)
 
 class ExaminationDeleteView(LoginRequiredMixin, DeleteView):

@@ -3,17 +3,35 @@
 
 {% load crispy_forms_tags %}
 
-{% block content %}
-  {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
-  {% endif %}
+{% block customcss %}
+<style>
+  body {
+    background: url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1189&q=80') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+  }
+</style>
+{% endblock %}
 
-  <h2>Log In</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button type="submit">Log In</button>
-  </form>
+{% block content %}
+  <div class="row">
+    <div class="col">
+    </div>
+    <div class="col-sm-10 col-md-6">
+      <div class="border rounded bg-white p-5" >
+        <h2>Log In</h2>
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button class="btn btn-primary" type="submit">Log In</button>
+        </form>
+      </div>
+    </div>
+    <div class="col">
+    </div>
+  </div>
+
+  
 {% endblock content %}

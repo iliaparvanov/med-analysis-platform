@@ -2,15 +2,33 @@
 
 {% load crispy_forms_tags %}
 
+{% block customcss %}
+<style>
+  body {
+    background: url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1189&q=80') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-  <div class="">
-    <div class="">
-      <h2>Sign up as a {{ user_type }}</h2>
-      <form method="post" novalidate>
-        {% csrf_token %}
-        {{ form|crispy }}
-        <button type="submit" class="">Sign up</button>
-      </form>
+  <div class="row">
+    <div class="col">
+    </div>
+    <div class="col-sm-10 col-md-6">
+      <div class="border rounded bg-white p-5" >
+        <h2>Sign up</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button class="btn btn-primary" type="submit" class="">Sign up</button>
+        </form>
+      </div>
+    </div>
+    <div class="col">
     </div>
   </div>
 {% endblock %}
