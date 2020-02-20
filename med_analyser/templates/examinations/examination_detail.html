@@ -8,16 +8,18 @@
         </div>
         <div class="col-4">
             <p>Image type: <strong>{{ examination.image_type }}</strong></p>
-            <hr>
-            <p>The findings our algorithm predicted:</p>
-                {% for inferred_finding in inferred_findings %}
-                    <p>{{ inferred_finding.finding }}: {{ inferred_finding.certainty }}</p>
-                {% endfor %}
-            <hr>
-            <p>Do you see a problem with these findings?</p><a class="btn btn-outline-primary btn-sm" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark correct findings</a>
+            {% if inferred_finding %}
+                <hr>
+                <p>The findings our algorithm predicted:</p>
+                    {% for inferred_finding in inferred_findings %}
+                        <p>{{ inferred_finding.finding }}: {{ inferred_finding.certainty }}</p>
+                    {% endfor %}
+                <hr>
+                <p>Do you see a problem with these findings?</p><a class="btn btn-outline-primary btn-sm" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark correct findings</a>
+            {% endif %}
         </div>
     </div>
-    <p class="h3">Notes</p>
+    <p class="h3 mt-3">Notes</p>
     <p>{{ examination.notes }}</p>
     {% if confirmed_findings %}
     <p>What you marked as the correct diagnosis:</p>

@@ -5,7 +5,7 @@ from .models import Examination
 class ExaminationUploadForm(forms.ModelForm):
     class Meta:
         model = Examination
-        fields = ['pat_name', 'image', 'notes']
+        fields = ['pat_name', 'image', 'notes', 'conducted_on']
 
 
 class ExaminationMarkNoFindingForm(forms.Form):

@@ -1,11 +1,12 @@
 from django.db import models
 from common.models import Doctor
 from django.urls import reverse
+from django.utils import timezone
 from django.conf import settings
 import uuid
 from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
-
+from datetime import date
 from .apps import ExaminationsConfig
 from fastai.vision.image import open_image 
 
@@ -30,6 +31,7 @@ class Examination(models.Model):
     notes = models.TextField()
     image_type = models.ForeignKey(ImageType, on_delete=models.SET_NULL, null=True)
     findings = models.ManyToManyField(Finding, through='InferredFinding')
+    conducted_on = models.DateField(default=timezone.now)
     created_by = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='examinations')
     created_on = models.DateField(verbose_name='examination creation date')
 
