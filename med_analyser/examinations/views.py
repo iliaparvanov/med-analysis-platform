@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, CreateView, DetailView, DeleteView, FormView
+from django.views.generic import *
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -21,10 +21,15 @@ class ExaminationListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Examination.objects.filter(created_by=self.request.user.doctor).order_by('created_on')
 
-class ExaminationDetailView(LoginRequiredMixin, DetailView):
+class ExaminationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Examination
     context_object_name = 'examination'
     template_name = 'examinations/examination_detail.html'
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+    def test_func(self, user):
+        return self.get_object() in user.doctor.examinations.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -57,13 +62,28 @@ class ExaminationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView)
         img = open_image(form.instance.image.file)
         pred_class,pred_idx,outputs = ExaminationsConfig.learner_image_type.predict(img)
         form.instance.image_type = ImageType.objects.get(label=str(pred_class))
-        
+
         return super().form_valid(form)
 
-class ExaminationDeleteView(LoginRequiredMixin, DeleteView):
+class ExaminationUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Examination
+    fields = ['pat_name', 'notes', 'conducted_on']
+    template_name_suffix = '_update'
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+    def test_func(self, user):
+        return self.get_object() in user.doctor.examinations.all()
+
+class ExaminationDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Examination
     template_name = 'examinations/examination_delete.html'
     success_url = reverse_lazy('examination_list')
+    raise_exception = True
+    redirect_unauthenticated_users = True
+
+    def test_func(self, user):
+        return self.get_object() in user.doctor.examinations.all()
 
 def delete_cfs_for_examination(examination):
     confirmed_findings = ConfirmedFinding.objects.filter(examination=examination)

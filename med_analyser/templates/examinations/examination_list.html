@@ -39,7 +39,7 @@
                                 <td>{{ examination.conducted_on }}</td>
                                 <td>{{ examination.created_on }}</td>
                                 <td><a href="{% url 'examination_detail' examination.pk %}" role="button" class="btn btn-primary mr-1 btn-sm">View</a><a href="{% url 'examination_delete' examination.pk %}" role="button" class="btn btn-outline-danger btn-sm">Delete</a>
-                                <a href="{% url 'examination_new' %}" role="button" class="btn btn-outline-primary btn-sm"><i class="fa fa-pen"></i></a></td>
+                                <a href="{% url 'examination_update' examination.pk %}" role="button" class="btn btn-outline-primary btn-sm"><i class="fa fa-pen"></i></a></td>
                             </tr>
                         {% endfor %}
 

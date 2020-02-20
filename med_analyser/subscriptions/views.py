@@ -90,7 +90,8 @@ class SubscriptionCheckoutView(LoginRequiredMixin, PermissionRequiredMixin, Temp
             return redirect(reverse('subscriptions:checkout_success'))
         elif status == "past_due" and stripe_sub.latest_invoice.payment_intent.status == "requires_action":
             # requires further action, ie authentication
-            messages.add_message(request, messages.ERROR, 'This payment method requires extra authentication.')
+            messages.add_message(request, messages.ERROR,
+            'This payment method requires extra authentication.')
             request.session['client_secret'] = stripe_sub.latest_invoice.payment_intent.client_secret
             return redirect(reverse('subscriptions:checkout_authentication'))
         else:
@@ -150,7 +151,8 @@ class SubscriptionCancelView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         if self.request.user.hospital.subscription.downgrade_at_period_end:
-            messages.add_message(self.request, messages.INFO, 'Your subscription has already been canceled. You will not be charged at the end of your current billing period.')
+            messages.add_message(self.request, messages.INFO,
+            'Your subscription has already been canceled. You will not be charged at the end of your current billing period.')
             return redirect('common:home')
 
         sub = get_subscription(self.request.user)
@@ -165,5 +167,6 @@ class SubscriptionCancelView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
         self.request.user.hospital.subscription.downgrade_at_period_end = True
         self.request.user.hospital.subscription.save()
-        messages.add_message(self.request, messages.INFO, 'Your subscription has been canceled. You will not be charged at the end of your current billing period.')
+        messages.add_message(self.request, messages.INFO,
+        'Your subscription has been canceled. You will not be charged at the end of your current billing period.')
         return redirect('common:home')
