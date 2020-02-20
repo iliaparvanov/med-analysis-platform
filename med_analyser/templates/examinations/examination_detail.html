@@ -8,7 +8,7 @@
         </div>
         <div class="col-4">
             <p>Image type: <strong>{{ examination.image_type }}</strong></p>
-            {% if inferred_finding %}
+            
                 <hr>
                 <p>The findings our algorithm predicted:</p>
                     {% for inferred_finding in inferred_findings %}
@@ -16,7 +16,7 @@
                     {% endfor %}
                 <hr>
                 <p>Do you see a problem with these findings?</p><a class="btn btn-outline-primary btn-sm" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark correct findings</a>
-            {% endif %}
+            
         </div>
     </div>
     <p class="h3 mt-3">Notes</p>
@@ -33,4 +33,7 @@
     {% else %}
     {% endif %}
     <p>Study created on {{ examination.created_on }}</p>
+    <script>
+
+    </script>
 {% endblock content %}

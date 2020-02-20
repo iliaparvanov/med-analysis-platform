@@ -70,13 +70,23 @@ from common.utils import generate_doctor_groups_and_permissions, generate_hospit
 def post_save_doctor_create_and_add_groups(sender, instance, **kwargs):
     generate_doctor_groups_and_permissions()
     instance.user.groups.add(Group.objects.get(name='free_doctors_group'))
-    if instance.hospital.user.groups.filter(name='pro_hospitals_group').exists():
-        instance.user.groups.add(Group.objects.get(name='pro_doctors_group'))
+    if instance.hospital:
+        if instance.hospital.user.groups.filter(name='pro_hospitals_group').exists():
+            instance.user.groups.add(Group.objects.get(name='pro_doctors_group'))
 
 @receiver(post_save, sender=Hospital)
 def post_save_hospital_create_and_add_groups(sender, instance, **kwargs):
     generate_hospital_groups_and_permissions()
     instance.user.groups.add(Group.objects.get(name='free_hospitals_group'))
+
+@receiver(post_save, sender=Hospital)
+def post_save_hospital_add_doctors_to_hospital(sender, instance, **kwargs):
+    users_matching_domain = CustomUser.objects.filter(email__contains=instance.email_domain)
+    print('SIGNAL SENT')
+    print(users_matching_domain)
+    for user in users_matching_domain:
+        user.doctor.hospital = instance
+        user.doctor.save()
 
 @receiver(pre_delete, sender=CustomUser)
 def pre_delete_user_delete_doctor_hospital(sender, instance, **kwargs):
