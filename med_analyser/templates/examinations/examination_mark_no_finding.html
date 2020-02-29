@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <form method="post">{% csrf_token %}
-        {{ form|crispy }}
-        <button type="submit">Next</button>
-    </form>
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <p class="h5 mb-4">Were there <strong>any</strong> findings in this examination?</p>
+            <p>If so please, leave the checkbox below unmarked and continue to the next page.
+            Otherwise, mark the checkbox and click 'Next'.</p>
+            <form method="post">{% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary">Next</button>
+            </form>
+        </div>
+    </div>
 {% endblock content %}
