@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    
-    {% if user.hospital.subscription.plan.plan_type != 'free' and not user.hospital.subscription.downgrade_at_period_end %}
-        <p>Your subscription will automatically be renewed on <b>{{ user.hospital.subscription.get_next_billing_date }}</b></p>
-    {% elif user.hospital.subscription.downgrade_at_period_end %}
-        <p>Your subscription has been canceled and you will not be billed again. You will be able to upgrade again after {{ user.hospital.subscription.current_period_end }}</p>
-    {% endif %}
-
     <section class="py-5">
-        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8">
+                    {% if user.hospital.subscription.plan.plan_type != 'free' and not user.hospital.subscription.downgrade_at_period_end %}
+                        <p>Your subscription will automatically be renewed on <b>{{ user.hospital.subscription.get_next_billing_date }}</b></p>
+                    {% elif user.hospital.subscription.downgrade_at_period_end %}
+                        <p>Your subscription has been canceled and you will not be billed again. You will be able to upgrade again after {{ user.hospital.subscription.current_period_end }}</p>
+                    {% else %}
+                        <p class="h5">Choose the plan that's right for you</p>
+                        <p>You can cancel your plan later, but your money won't be refunded</p>
+                    {% endif %}
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-2"></div>
             <!-- Free Tier -->
@@ -29,7 +33,7 @@
                             {% else %}
                                 <form action={% url 'subscriptions:cancel' %} method="POST">
                                     {% csrf_token %}
-                                    <button class="btn btn-block btn-primary text-uppercase">Downgrade/Cancel</button>
+                                    <button class="btn btn-block btn-primary text-uppercase">Downgrade (Cancel)</button>
                                 </form>	
                             {% endif %}
                         </div>
@@ -63,6 +67,5 @@
                 </div>
                 <div class="col-lg-2"></div>
             </div>
-        </div>
     </section>
 {% endblock %}
