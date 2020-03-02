@@ -33,7 +33,11 @@ class ExaminationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        is_no_finding = InferredFinding.objects.filter(examination=self.get_object(), finding__is_no_finding=True).first()
+        print(is_no_finding)
+        context['is_no_finding'] = is_no_finding
         inferred_findings = InferredFinding.objects.filter(examination=self.get_object()).order_by('-certainty')
+        print(inferred_findings)
         context['inferred_findings'] = inferred_findings
         confirmed_findings = ConfirmedFinding.objects.filter(examination=self.get_object())
         if confirmed_findings:

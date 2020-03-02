@@ -46,21 +46,46 @@ class InferredFinding(models.Model):
     examination = models.ForeignKey(Examination, on_delete=models.CASCADE)
     certainty = models.FloatField()
 
+    def __str__(self):
+        return str(self.finding)
+
+    def certainty_as_pct(self):
+        return round(self.certainty*100, 2)
+
+    def certainty_as_pct_to_100(self):
+        return round(100-(self.certainty*100), 2)
+
 class ConfirmedFinding(models.Model):
     finding = models.ForeignKey(Finding, on_delete=models.CASCADE)
     examination = models.ForeignKey(Examination, on_delete=models.CASCADE)
     training_complete = models.BooleanField(verbose_name='the model was trained on this finding', default=False)
     marked_for_training = models.BooleanField(verbose_name='the model will soon be trained on this finding', default=False)
 
+    def __str__(self):
+        return str(self.finding)
+
 @receiver(post_save, sender=Examination)
 def infer_findings(sender, instance,  **kwargs):
+    # delete all existing inferred findings
+    inferred_findings = InferredFinding.objects.filter(examination=instance)
+    inferred_findings.delete()
+
+    # infer new findings
     img = open_image(instance.image.file)
     try:
-        learner = ExaminationsConfig.learners_findings[instance.image_type.label]
-        pred_class,pred_idx,outputs = learner.predict(img)
-        for c, output in zip(learner.data.classes, outputs):
+        any_findings_learner = ExaminationsConfig.learners_findings[instance.image_type.label]['any_findings']
+        pred_class,pred_idx,outputs = any_findings_learner.predict(img)
+        print(pred_class)
+        inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(is_no_finding=True), certainty=outputs[1])
+        inferred_finding.save()
+        
+        inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label='No Finding'), certainty=outputs[1])
+        findings_learner = ExaminationsConfig.learners_findings[instance.image_type.label]['findings']
+        pred_class,pred_idx,outputs = findings_learner.predict(img)
+        for c, output in zip(findings_learner.data.classes, outputs):
             inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label=c), certainty=output)
             inferred_finding.save()
+        
     except KeyError:
         pass
 

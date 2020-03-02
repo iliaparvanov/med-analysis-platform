@@ -86,7 +86,7 @@ class SubscriptionCheckoutView(LoginRequiredMixin, PermissionRequiredMixin, Temp
         if status == "active" and stripe_sub.latest_invoice.payment_intent.status == "succeeded":
             # payment succeeds, provision goods
             provision_goods(self.request.user, desired_plan)
-            messages.add_message(request, messages.SUCCESS, 'Payment successful!')
+            messages.add_message(request, messages.SUCCESS, 'Payment successful! You now have a ' + str(desired_plan))
             return redirect(reverse('subscriptions:checkout_success'))
         elif status == "past_due" and stripe_sub.latest_invoice.payment_intent.status == "requires_action":
             # requires further action, ie authentication
@@ -121,6 +121,7 @@ class SubscriptionCheckoutAuthenticationView(LoginRequiredMixin, PermissionRequi
         sub = get_subscription(self.request.user)
         if sub.status == 'active':
             provision_goods(self.request.user, desired_plan)
+            messages.add_message(request, messages.SUCCESS, 'Payment successful! You now have a ' + str(desired_plan))
             return redirect(reverse('subscriptions:checkout_success'))
         else:
             return redirect(reverse('subscriptions:checkout'))
@@ -130,7 +131,7 @@ class SubscriptionCheckoutSuccessView(LoginRequiredMixin, PermissionRequiredMixi
     permission_required = "common.is_hospital"
     raise_exception = True
     redirect_unauthenticated_users = True
-    template_name = 'subscriptions/checkout_success.html'
+    template_name = 'subscriptions/manage.html'
 
     def dispatch(self, *args, **kwargs):
         try:

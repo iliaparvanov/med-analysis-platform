@@ -33,6 +33,9 @@ class Hospital(models.Model):
                 free_doctors_group, created = Group.objects.get(name='free_doctors_group')
                 doctor.user.groups.add(free_doctors_group)
 
+    def __str__(self):
+        return self.name
+
 class Doctor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     first_name = models.CharField(max_length=30)
@@ -45,6 +48,9 @@ class Doctor(models.Model):
         if Examination.objects.filter(created_by=self).count() >= 3 and not self.user.has_perm('common.can_exceed_max_examinations'):
             return False
         return True
+
+    def __str__(self):
+        return self.first_name + ' ' + self.last_name
 
 @receiver(pre_save, sender=Hospital)
 def pre_save_hospital_create_subscription(sender, instance, **kwargs):

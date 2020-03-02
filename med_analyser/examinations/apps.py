@@ -14,7 +14,10 @@ class ExaminationsConfig(AppConfig):
 
     learner_image_type = load_learner(path_image_type)
     learners_findings = {
-        "chest": load_learner(path_chest_xray)
+        "chest": {
+            'any_findings': load_learner(path_chest_xray, 'any_findings.pkl'),
+            'findings': load_learner(path_chest_xray, 'findings.pkl')
+        }
     }
 
     def ready(self):
