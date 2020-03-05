@@ -11,7 +11,7 @@ COPY ./requirements.txt /web/requirements.txt
 RUN conda create --name django-fastai
 RUN conda env create -f /web/conda_environment_linux.yml --force
 
-RUN apt-get update && apt-get install -y python-dev libpq-dev && apt-get install graphviz
+RUN apt-get update && apt-get install -y python-dev libpq-dev graphviz 
 
 RUN /bin/bash -c "source activate django-fastai && pip install -r /web/requirements.txt" 
 
