@@ -156,18 +156,11 @@ class SubscriptionCancelView(LoginRequiredMixin, PermissionRequiredMixin, View):
             'Your subscription has already been canceled. You will not be charged at the end of your current billing period.')
             return redirect('common:home')
 
-        sub = get_subscription(self.request.user)
-        stripe.Subscription.modify(
-                sub.id,
-                cancel_at_period_end=False,
-                items=[{
-                    'id': sub['items']['data'][0].id,
-                    'plan': Plan.objects.filter(plan_type='free').first().stripe_plan_id,
-            }]
-        )
+        self.request.user.hospital.subcription.downgrade_stripe_sub()
 
         self.request.user.hospital.subscription.downgrade_at_period_end = True
         self.request.user.hospital.subscription.save()
+
         messages.add_message(self.request, messages.INFO,
         'Your subscription has been canceled. You will not be charged at the end of your current billing period.')
         return redirect('common:home')

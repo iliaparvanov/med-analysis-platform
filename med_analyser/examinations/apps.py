@@ -4,8 +4,6 @@ from fastai.vision import load_learner
 from pathlib import Path
 import os
 
-# from fastai.vision import *
-
 class ExaminationsConfig(AppConfig):
     name = 'examinations'
     path = Path(os.path.join(settings.ML_MODELS))
@@ -22,7 +20,6 @@ class ExaminationsConfig(AppConfig):
 
     def ready(self):
         from .ml_models import trainer
-    
         confirmed_findings_model = self.get_model('ConfirmedFinding')
         image_type_model = self.get_model('ImageType')
         examinations_model = self.get_model('Examination')

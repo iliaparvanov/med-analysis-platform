@@ -19,15 +19,7 @@ def update_subscriptions(hospital_model, plan_model):
         sub_status = hospital.subcription.get_status
         if sub_status == 'past_due' or sub_status == 'canceled' or sub_status == 'unpaid':
             # move to free subscription
-            sub = stripe.Subscription.retrieve(hospital.subscription.stripe_subscription_id)
-            stripe.Subscription.modify(
-                    sub.id,
-                    cancel_at_period_end=False,
-                    items=[{
-                        'id': sub['items']['data'][0].id,
-                        'plan': plan_model.objects.filter(plan_type='free').first().stripe_plan_id,
-                }]
-            )
+            hospital.subscription.downgrade_stripe_sub()
             hospital.move_to_free_plan()
         elif sub_status == 'active':
             hospital.subscription.current_period_end = date.today() + relativedelta(days=30)

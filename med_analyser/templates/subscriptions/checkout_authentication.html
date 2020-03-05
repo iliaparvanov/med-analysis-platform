@@ -23,14 +23,12 @@
         const paymentIntentSecret = submitButton.dataset.secret;
         stripe.confirmCardPayment(paymentIntentSecret).then(function(result) {
             if (result.error) {
-                // Display error.message in your UI.
-                // Modify modal
                 let modal = $('#messagesModal');
                 modal.find('.messages').empty();
                 modal.find('.messages').append('<li>Authentication has failed</li');
                 modal.modal('show');
             } else {
-                // The payment has succeeded. Display a success message.
+                // The payment has succeeded
                 document.forms['authentication-form'].submit();
             }
         });

@@ -35,6 +35,17 @@ class Subscription(models.Model):
         self.current_period_end = date(2040, 1, 1)
         self.save()
 
+    def downgrade_stripe_sub(self):
+        stripe_sub = stripe.Subscription.retrieve(self.stripe_subscription_id)
+        stripe.Subscription.modify(
+                stripe_sub.id,
+                cancel_at_period_end=False,
+                items=[{
+                    'id': stripe_sub['items']['data'][0].id,
+                    'plan': Plan.objects.filter(plan_type='free').first().stripe_plan_id,
+            }]
+        )
+
     @property
     def get_next_billing_date(self):
         subscription = stripe.Subscription.retrieve(self.stripe_subscription_id)

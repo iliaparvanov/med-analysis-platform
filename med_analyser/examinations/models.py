@@ -75,19 +75,16 @@ def infer_findings(sender, instance,  **kwargs):
     try:
         any_findings_learner = ExaminationsConfig.learners_findings[instance.image_type.label]['any_findings']
         pred_class,pred_idx,outputs = any_findings_learner.predict(img)
-        print(pred_class)
         inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(is_no_finding=True), certainty=outputs[1])
         inferred_finding.save()
         
-        inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label='No Finding'), certainty=outputs[1])
         findings_learner = ExaminationsConfig.learners_findings[instance.image_type.label]['findings']
         pred_class,pred_idx,outputs = findings_learner.predict(img)
         for c, output in zip(findings_learner.data.classes, outputs):
             inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label=c), certainty=output)
             inferred_finding.save()
-        
     except KeyError:
-        pass
+        print('No model for this image type')
 
 @receiver(post_delete, sender=Examination)
 def submission_delete(sender, instance, **kwargs):

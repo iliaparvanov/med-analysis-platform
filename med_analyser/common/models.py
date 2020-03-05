@@ -45,7 +45,7 @@ class Doctor(models.Model):
     @property
     def can_create_more_examinations(self):
         from examinations.models import Examination
-        if Examination.objects.filter(created_by=self).count() >= 3 and not self.user.has_perm('common.can_exceed_max_examinations'):
+        if Examination.objects.filter(created_by=self).count() >= 25 and not self.user.has_perm('common.can_exceed_max_examinations'):
             return False
         return True
 
@@ -54,13 +54,15 @@ class Doctor(models.Model):
 
 @receiver(pre_save, sender=Hospital)
 def pre_save_hospital_create_subscription(sender, instance, **kwargs):
-    # add free Stripe plan
     free_plan = Plan.objects.filter(plan_type='free').first()
-    customer = stripe.Customer.create(email=instance.user.email, name=instance.user.doctor.first_name + " " + instance.user.doctor.last_name)
+    customer = stripe.Customer.create(email=instance.user.email,
+        name=instance.user.doctor.first_name + " " + instance.user.doctor.last_name)
     stripe_sub = stripe.Subscription.create(customer=customer.id, items=[{
         "plan": free_plan.stripe_plan_id
     }])
-    sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id, stripe_customer_id=customer.id, plan=free_plan)
+    sub = Subscription.objects.create(stripe_subscription_id=stripe_sub.id,
+        stripe_customer_id=customer.id,
+        plan=free_plan)
     instance.subscription = sub
 
 @receiver(pre_save, sender=Doctor)
@@ -88,8 +90,6 @@ def post_save_hospital_create_and_add_groups(sender, instance, **kwargs):
 @receiver(post_save, sender=Hospital)
 def post_save_hospital_add_doctors_to_hospital(sender, instance, **kwargs):
     users_matching_domain = CustomUser.objects.filter(email__contains=instance.email_domain)
-    print('SIGNAL SENT')
-    print(users_matching_domain)
     for user in users_matching_domain:
         user.doctor.hospital = instance
         user.doctor.save()
