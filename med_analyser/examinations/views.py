@@ -36,7 +36,7 @@ class ExaminationDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         is_no_finding = InferredFinding.objects.filter(examination=self.get_object(), finding__is_no_finding=True).first()
         print(is_no_finding)
         context['is_no_finding'] = is_no_finding
-        inferred_findings = InferredFinding.objects.filter(examination=self.get_object()).order_by('-certainty')
+        inferred_findings = InferredFinding.objects.filter(examination=self.get_object(), finding__is_no_finding=False).order_by('-certainty')
         print(inferred_findings)
         context['inferred_findings'] = inferred_findings
         confirmed_findings = ConfirmedFinding.objects.filter(examination=self.get_object())
