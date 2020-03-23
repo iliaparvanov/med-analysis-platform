@@ -16,7 +16,6 @@ from fastai.vision.image import Image as FAIImage
 from fastai.callbacks.hooks import *
 from PIL import Image as PILImage
 import matplotlib.pyplot as plt
-from apscheduler.schedulers.background import BackgroundScheduler
 
 
 class ImageType(models.Model):
@@ -111,7 +110,9 @@ def infer_findings(sender, instance, created,**kwargs):
         try:
             any_findings_learner = ExaminationsConfig.learners_findings[instance.image_type.label]['any_findings']
             pred_class,pred_idx,outputs = any_findings_learner.predict(img)
-            inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(is_no_finding=True), certainty=outputs[1])
+            inferred_finding = InferredFinding(examination=instance,
+                finding=Finding.objects.get(is_no_finding=True),
+                certainty=outputs[1])
             inferred_finding.save()
 
             if inferred_finding.certainty < 0.5:
@@ -120,7 +121,9 @@ def infer_findings(sender, instance, created,**kwargs):
             findings_learner = ExaminationsConfig.learners_findings[instance.image_type.label]['findings']
             pred_class,pred_idx,outputs = findings_learner.predict(img)
             for c, output in zip(findings_learner.data.classes, outputs):
-                inferred_finding = InferredFinding(examination=instance, finding=Finding.objects.get(label=c), certainty=output)
+                inferred_finding = InferredFinding(examination=instance,
+                    finding=Finding.objects.get(label=c),   
+                    certainty=output)
                 inferred_finding.save()
             
         except KeyError:

@@ -23,4 +23,6 @@ class ExaminationsConfig(AppConfig):
         confirmed_findings_model = self.get_model('ConfirmedFinding')
         image_type_model = self.get_model('ImageType')
         examinations_model = self.get_model('Examination')
-        trainer.start(self.learners_findings, confirmed_findings_model, image_type_model, examinations_model)
+        trainer.start(self.learners_findings,
+            confirmed_findings_model, image_type_model, examinations_model)
+
