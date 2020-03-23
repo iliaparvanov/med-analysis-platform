@@ -5,6 +5,9 @@
     <div class="row">
         <div class="col-8 my-auto">
             <img class="img-fluid" src="{{ examination.image.url }}">
+            {% if examination.heatmap %}
+                <img class="img-fluid" src="{{ examination.heatmap.url }}">
+            {% endif %}
         </div>
         <div class="col-4">
             <p>Image type: <strong>{{ examination.image_type }}</strong></p>
