@@ -6,18 +6,20 @@ from examinations.apps import ExaminationsConfig
 def from_learners_add_findings(apps, schema_editor):
     Finding = apps.get_model('examinations', 'Finding')
     for learner in ExaminationsConfig.learners_findings:
-        for c in ExaminationsConfig.learners_findings[learner].data.classes:
-            f = Finding(label=c)
-            if c.lower() == 'no finding':
-                f.is_no_finding = True
-            f.save()
+        for model in ExaminationsConfig.learners_findings[learner]:
+            for c in ExaminationsConfig.learners_findings[learner][model].data.classes:
+                f = Finding(label=c)
+                if c.lower() == 'no finding':
+                    f.is_no_finding = True
+                f.save()
 
 def from_learners_remove_findings(apps, schema_editor):
     Finding = apps.get_model('examinations', 'Finding')
     for learner in ExaminationsConfig.learners_findings:
-        for c in ExaminationsConfig.learners_findings[learner].data.classes:
-            f = Finding.objects.get(label=c)
-            f.delete() 
+        for model in ExaminationsConfig.learners_findings[learner].data.classes:
+            for c in ExaminationsConfig.learners_findings[learner][model].data.classes:
+                f = Finding.objects.get(label=c)
+                f.delete() 
 
 class Migration(migrations.Migration):
 
