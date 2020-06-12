@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <h2>{{ examination.pat_name }}</h2>
-    
+    <br>
     <div class="row">
         <div class="col-8 my-auto">
             <img class="img-fluid" src="{{ examination.image.url }}">
@@ -11,36 +11,35 @@
         </div>
         <div class="col-4">
             <p>Image type: <strong>{{ examination.image_type }}</strong></p>
-                {% comment %} {% if is_no_finding.certainty > 0.1 %} {% endcomment %}
-                    <p>Our algorithms are {{ is_no_finding.certainty_as_pct_to_100 }}% sure that there is <strong>at least one</strong> anomaly within the image.</p>
-                {% comment %} {% else %} {% endcomment %}
                     {% if inferred_findings.all %}
+                        <p>Our algorithms are {{ is_no_finding.certainty_as_pct_to_100 }}% sure that there is <strong>at least one</strong> anomaly within the image.</p>
+                    
                         <hr>
                         <p>The findings our algorithm predicted:</p>
                             {% for inferred_finding in inferred_findings %}
                                 <p>{{ inferred_finding.finding }}: {{ inferred_finding.certainty_as_pct }}%</p>
                             {% endfor %}
                         <hr>
-                        <p>Do you see a problem with these findings?</p><a class="btn btn-outline-primary btn-sm" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark correct findings</a>
+                        {% if confirmed_findings %}
+                            <p>What you marked as the correct diagnosis:</p>
+                            <h4>
+                                {% for confirmed_finding in confirmed_findings %}
+                                    <span class="badge badge-light">{{ confirmed_finding.finding.label }}</span>
+                                {% endfor %}
+                            </h4>
+                            <br>
+                            <a class="btn btn-outline-primary" href="{% url 'examination_mark_no_finding' examination.pk %}">Change diagnosis</a>
+                        {% else %}
+                            <p>Do you see a problem with these findings?</p><a class="btn btn-outline-primary btn-sm" href="{% url 'examination_mark_no_finding' examination.pk %}">Mark correct findings</a>
+                        {% endif %}
+                    {% else %}
+                            <p>At this time we do not support anomaly detection for this image type.</p>
                     {% endif %}
-                {% comment %} {% endif %} {% endcomment %}
         </div>
     </div>
     <p class="h3 mt-3">Notes</p>
     <p>{{ examination.notes }}</p>
-    {% if confirmed_findings %}
-    <p>What you marked as the correct diagnosis:</p>
-        <h4>
-            {% for confirmed_finding in confirmed_findings %}
-                <span class="badge badge-light">{{ confirmed_finding.finding.label }}</span>
-            {% endfor %}
-        </h4>
-        <br>
-        <a class="btn btn-outline-primary" href="{% url 'examination_mark_no_finding' examination.pk %}">Correct diagnosis</a>
-    {% else %}
-    {% endif %}
     <p>Study created on {{ examination.created_on }}</p>
     <script>
-
     </script>
 {% endblock content %}

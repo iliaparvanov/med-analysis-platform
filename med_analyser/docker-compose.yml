@@ -2,7 +2,7 @@ version: '3.7'
 services:
     web:
         build: .
-        command: bash -c "source activate django-fastai && python /web/manage.py migrate && python /web/manage.py runserver 0.0.0.0:8000 "
+        command: bash -c "source activate django-fastai && python /web/manage.py runserver --noreload 0.0.0.0:8000 "
         environment:
             - SECRET_KEY=0j*h)c9mw05oy26#8*c5wl3aq@mmby0o0*@2+yju)$$-_#pk2!)
             - DEBUG=True
