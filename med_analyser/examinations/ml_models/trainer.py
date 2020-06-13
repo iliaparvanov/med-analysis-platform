@@ -35,19 +35,20 @@ def train_chest_xray_model(learners_findings, confirmed_findings_model, image_ty
             image_list.append(image)
             
         df = pd.DataFrame({'name': image_list, 'tags': tags_list})
+
+        learn = learners_findings[image_type.label]['findings']
  
-        tfms = get_transforms(flip_vert=False, max_warp=0.) 
+        tfms = get_transforms(do_flip=False, max_warp=0.) 
         data = (ImageList.from_df(df=df, path=images_path)
                 .split_by_rand_pct(0.2)
-                .label_from_df(label_delim=';')
+                .label_from_df(label_delim=';', classes=learn.data.classes)
                 .transform(tfms, size=224)
                 .databunch(bs=8).normalize(imagenet_stats))
         
         try: 
-            learn = learners_findings[image_type.label]
-            learn.unfreeze()
-            learn.fit_one_cycle(1, slice(1e-5, 1e-3))
-            learn.save(str(datetime.datetime.now()))
+            learn.lr_find()
+            learn.fit_one_cycle(1, slice(1e-3))
+            learn.save(str(datetime.datetime.now()) + '.pkl')
             print('saved learner')
         except:
             pass
