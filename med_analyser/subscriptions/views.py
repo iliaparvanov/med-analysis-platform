@@ -156,7 +156,7 @@ class SubscriptionCancelView(LoginRequiredMixin, PermissionRequiredMixin, View):
             'Your subscription has already been canceled. You will not be charged at the end of your current billing period.')
             return redirect('common:home')
 
-        self.request.user.hospital.subcription.downgrade_stripe_sub()
+        self.request.user.hospital.subscription.downgrade_stripe_sub()
 
         self.request.user.hospital.subscription.downgrade_at_period_end = True
         self.request.user.hospital.subscription.save()
